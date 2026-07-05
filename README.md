@@ -19,6 +19,18 @@ O projeto é estruturado como um monorepo dividido em:
 6. **Payroll & Compliance**: Regras de férias, cálculo de limite de período concessivo, bloqueio de sobreposição de férias críticas e exportação CNAB mockada.
 7. **Analytics**: Headcount, turnover, absenteísmo e análise de correlação preditiva.
 
+## Oferta Comercial
+
+A entrada pública do produto posiciona a Kinship como **Kinship Risk Desk**, uma oferta de piloto pago para Heads de RH, People Ops e COOs que precisam reduzir risco operacional em clima, onboarding, DP/compliance e sucessão.
+
+O fluxo público inclui:
+
+- landing page focada no ICP de empresas tech/serviços B2B com 80-300 funcionários;
+- oferta de piloto de 30 dias com faixa de preço sugerida de `R$ 1.500 - R$ 3.000/mês`;
+- CTA de diagnóstico de People Ops;
+- formulário de qualificação que salva leads localmente no navegador em `kinship.diagnostic.leads`;
+- acesso separado ao workspace autenticado da demo.
+
 ## Login da Demo
 
 O front-end publicado na Vercel usa autenticação mockada por email/senha para demonstrar RBAC sem depender de backend local. As credenciais abaixo são apenas para a demo:

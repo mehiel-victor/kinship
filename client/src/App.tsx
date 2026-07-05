@@ -186,6 +186,16 @@ type ProductUseCase = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
+type PublicView = "landing" | "login";
+
+type DiagnosticLeadForm = {
+  name: string;
+  email: string;
+  company: string;
+  headcount: string;
+  pain: string;
+};
+
 const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
   talent: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/40",
   performance: "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/40",
@@ -260,6 +270,25 @@ const PRODUCT_USE_CASES: ProductUseCase[] = [
   },
 ];
 
+const RISK_DESK_SIGNALS = [
+  { label: "Onboarding travado", value: "3", detail: "documentos e tarefas paradas", icon: FileCheck },
+  { label: "Clima em queda", value: "-8", detail: "pontos no time de tecnologia", icon: TrendingUp },
+  { label: "Risco trabalhista", value: "1", detail: "bloqueio de férias críticas", icon: Calendar },
+];
+
+const PILOT_DELIVERABLES = [
+  "Diagnóstico inicial de People Ops em 48h.",
+  "Cockpit de risco com clima, DP, onboarding e sucessão.",
+  "Roteiro semanal de ações para RH, gestores e liderança.",
+  "Setup assistido com dados fictícios ou planilha real higienizada.",
+];
+
+const GTM_METRICS = [
+  { label: "ICP inicial", value: "80-300", detail: "funcionários em tech/serviços B2B" },
+  { label: "Piloto pago", value: "30 dias", detail: "setup assistido e relatório semanal" },
+  { label: "Ticket alvo", value: "R$ 1.5k-3k", detail: "mensalidade para validação comercial" },
+];
+
 const asData = <T,>(value: unknown) => value as T;
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -282,6 +311,15 @@ const App: React.FC = () => {
 
   const [performanceViewTargetId, setPerformanceViewTargetId] = useState(currentUser.id);
 
+  const [publicView, setPublicView] = useState<PublicView>("landing");
+  const [diagnosticForm, setDiagnosticForm] = useState<DiagnosticLeadForm>({
+    name: "",
+    email: "",
+    company: "",
+    headcount: "",
+    pain: "",
+  });
+  const [diagnosticSubmitted, setDiagnosticSubmitted] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -611,6 +649,31 @@ const App: React.FC = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const handleOpenLogin = () => {
+    setPublicView("login");
+    setLoginError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDiagnosticCTA = () => {
+    document.getElementById("diagnostic-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleDiagnosticSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const lead = {
+      ...diagnosticForm,
+      submittedAt: new Date().toISOString(),
+      source: "risk-desk-landing",
+    };
+
+    const currentLeads = JSON.parse(localStorage.getItem("kinship.diagnostic.leads") || "[]") as unknown[];
+    localStorage.setItem("kinship.diagnostic.leads", JSON.stringify([lead, ...currentLeads].slice(0, 25)));
+    setDiagnosticSubmitted(true);
+    setDiagnosticForm({ name: "", email: "", company: "", headcount: "", pain: "" });
+  };
+
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -633,7 +696,279 @@ const App: React.FC = () => {
     setCnabPreview(null);
     setLoginForm({ email: "", password: "" });
     setLoginError(null);
+    setPublicView("landing");
   };
+
+  if (!isAuthenticated && publicView === "landing") {
+    return (
+      <div className="min-h-screen bg-slate-950 font-sans text-white">
+        <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+            <div className="flex items-center gap-3">
+              <img
+                src="/kinship_logo.png"
+                alt="Kinship"
+                className="h-10 w-10 rounded-lg border border-white/10 object-cover object-top"
+              />
+              <div>
+                <span className="block font-display text-lg font-black tracking-tight">Kinship</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">Risk Desk</span>
+              </div>
+            </div>
+            <nav className="hidden items-center gap-6 text-xs font-black uppercase tracking-wider text-slate-400 md:flex">
+              <a href="#wedge" className="transition hover:text-white">Problema</a>
+              <a href="#pilot" className="transition hover:text-white">Piloto</a>
+              <a href="#diagnostic-form" className="transition hover:text-white">Diagnóstico</a>
+            </nav>
+            <button
+              type="button"
+              onClick={handleOpenLogin}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-100 transition hover:border-cyan-300/50 hover:bg-cyan-300/10"
+            >
+              Entrar
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
+
+        <main>
+          <section className="relative overflow-hidden border-b border-white/10 px-5 pb-16 pt-28 sm:px-8 lg:pb-24 lg:pt-36">
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,#07111f_0%,#0f172a_46%,#052f2f_100%)]" />
+            <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:56px_56px]" />
+            <div className="relative mx-auto max-w-7xl">
+              <div className="max-w-4xl">
+                <p className="mb-5 inline-flex items-center gap-2 rounded-lg border border-cyan-200/20 bg-cyan-200/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-cyan-100">
+                  <ActivityIcon className="h-4 w-4" />
+                  Piloto pago para People Ops
+                </p>
+                <h1 className="font-display text-6xl font-black leading-[0.92] tracking-tight sm:text-7xl lg:text-8xl">
+                  Kinship Risk Desk
+                </h1>
+                <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300">
+                  Um cockpit para Heads de RH e COOs detectarem risco de clima, onboarding, férias/compliance e sucessão antes de virar churn, retrabalho ou exposição trabalhista.
+                </p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={handleDiagnosticCTA}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-950/40 transition hover:bg-cyan-200"
+                  >
+                    Agendar diagnóstico
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenLogin}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:border-white/40 hover:bg-white/10"
+                  >
+                    Ver workspace
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-12 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+                <section className="rounded-lg border border-white/10 bg-slate-950/60 p-5 shadow-2xl shadow-black/30 backdrop-blur">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Risk cockpit</span>
+                      <h2 className="mt-1 font-display text-2xl font-black">Riscos priorizados para esta semana</h2>
+                    </div>
+                    <ShieldCheck className="h-6 w-6 text-cyan-200" />
+                  </div>
+                  <div className="mt-5 grid gap-3 md:grid-cols-3">
+                    {RISK_DESK_SIGNALS.map((signal) => {
+                      const Icon = signal.icon;
+                      return (
+                        <article key={signal.label} className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
+                          <div className="mb-6 flex items-center justify-between">
+                            <Icon className="h-5 w-5 text-cyan-200" />
+                            <span className="rounded-lg border border-amber-300/20 bg-amber-300/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-100">atenção</span>
+                          </div>
+                          <strong className="block font-display text-4xl font-black">{signal.value}</strong>
+                          <span className="mt-2 block text-sm font-black text-white">{signal.label}</span>
+                          <span className="mt-1 block text-xs leading-5 text-slate-400">{signal.detail}</span>
+                        </article>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 rounded-lg border border-emerald-300/15 bg-emerald-300/10 p-4">
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-100">próxima ação sugerida</span>
+                    <p className="mt-2 text-sm leading-6 text-emerald-50">
+                      Revisar onboarding executivo e férias críticas com RH e gestor responsável em até 48h.
+                    </p>
+                  </div>
+                </section>
+
+                <aside className="grid gap-4">
+                  {GTM_METRICS.map((metric) => (
+                    <div key={metric.label} className="rounded-lg border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{metric.label}</span>
+                      <strong className="mt-2 block font-display text-4xl font-black">{metric.value}</strong>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">{metric.detail}</p>
+                    </div>
+                  ))}
+                </aside>
+              </div>
+            </div>
+          </section>
+
+          <section id="wedge" className="bg-[#f5f7fb] px-5 py-16 text-slate-950 sm:px-8 lg:py-24">
+            <div className="mx-auto max-w-7xl">
+              <div className="max-w-3xl">
+                <span className="text-xs font-black uppercase tracking-[0.24em] text-cyan-700">wedge comercial</span>
+                <h2 className="mt-3 font-display text-4xl font-black tracking-tight sm:text-5xl">Não venda mais um HRIS. Venda redução de risco operacional.</h2>
+                <p className="mt-5 text-base leading-7 text-slate-600">
+                  O comprador não quer outro sistema para alimentar. Ele quer saber onde agir primeiro e como provar que RH reduziu risco para o negócio.
+                </p>
+              </div>
+
+              <div className="mt-10 grid gap-4 lg:grid-cols-3">
+                {[
+                  { title: "Sinais fragmentados", text: "Clima em um formulário, férias em planilha, onboarding em checklist e feedback em conversas soltas.", icon: Database },
+                  { title: "Risco priorizado", text: "Kinship organiza esses sinais por severidade, dono da ação e impacto esperado para a operação.", icon: Target },
+                  { title: "Ação rastreável", text: "Cada decisão fica conectada ao perfil, módulo e histórico para demonstrar governança.", icon: Route },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <article key={item.title} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                      <Icon className="h-6 w-6 text-cyan-700" />
+                      <h3 className="mt-5 font-display text-xl font-black">{item.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          <section id="pilot" className="bg-white px-5 py-16 text-slate-950 sm:px-8 lg:py-24">
+            <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+              <div>
+                <span className="text-xs font-black uppercase tracking-[0.24em] text-cyan-700">oferta de validação</span>
+                <h2 className="mt-3 font-display text-4xl font-black tracking-tight sm:text-5xl">Piloto pago de 30 dias para provar valor antes de virar SaaS.</h2>
+                <p className="mt-5 text-base leading-7 text-slate-600">
+                  A meta é fechar 3 pilotos pagos com empresas no ICP, aprender com dados reais e só então transformar os fluxos mais valiosos em produto recorrente.
+                </p>
+                <div className="mt-6 rounded-lg border border-cyan-200 bg-cyan-50 p-5">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-700">preço inicial</span>
+                  <strong className="mt-2 block font-display text-4xl font-black text-slate-950">R$ 1.500 - R$ 3.000/mês</strong>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">Ticket suficiente para validar dor real sem virar projeto enterprise longo.</p>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                {PILOT_DELIVERABLES.map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                    <span className="text-sm font-semibold leading-6 text-slate-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section id="diagnostic-form" className="bg-[#09111f] px-5 py-16 text-white sm:px-8 lg:py-24">
+            <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(24rem,0.75fr)] lg:items-start">
+              <div>
+                <span className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">próximo passo comercial</span>
+                <h2 className="mt-3 font-display text-4xl font-black tracking-tight sm:text-5xl">Agende um diagnóstico de People Ops.</h2>
+                <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
+                  Use este formulário como captação inicial de leads. Na demo, as submissões ficam salvas localmente no navegador para simular pipeline comercial.
+                </p>
+                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                  {["10 conversas com Heads de RH", "3 pilotos pagos", "1 caso de uso repetível", "90 dias para validar PMF"].map((item) => (
+                    <div key={item} className="rounded-lg border border-white/10 bg-white/[0.05] p-4 text-sm font-bold text-slate-200">
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <form onSubmit={handleDiagnosticSubmit} className="rounded-lg border border-white/10 bg-white p-5 text-slate-950 shadow-2xl shadow-black/30">
+                <div className="mb-5">
+                  <h3 className="font-display text-2xl font-black">Diagnóstico inicial</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">Qualifique a empresa antes de mostrar a demo completa.</p>
+                </div>
+                <div className="grid gap-4">
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Nome</span>
+                    <input
+                      value={diagnosticForm.name}
+                      onChange={(event) => setDiagnosticForm(prev => ({ ...prev, name: event.target.value }))}
+                      required
+                      className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                      placeholder="Nome do responsável"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Email corporativo</span>
+                    <input
+                      type="email"
+                      value={diagnosticForm.email}
+                      onChange={(event) => setDiagnosticForm(prev => ({ ...prev, email: event.target.value }))}
+                      required
+                      className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                      placeholder="nome@empresa.com"
+                    />
+                  </label>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Empresa</span>
+                      <input
+                        value={diagnosticForm.company}
+                        onChange={(event) => setDiagnosticForm(prev => ({ ...prev, company: event.target.value }))}
+                        required
+                        className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                        placeholder="Nome da empresa"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Headcount</span>
+                      <select
+                        value={diagnosticForm.headcount}
+                        onChange={(event) => setDiagnosticForm(prev => ({ ...prev, headcount: event.target.value }))}
+                        required
+                        className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                      >
+                        <option value="">Selecione</option>
+                        <option value="50-80">50-80</option>
+                        <option value="80-150">80-150</option>
+                        <option value="150-300">150-300</option>
+                        <option value="300+">300+</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Maior risco hoje</span>
+                    <textarea
+                      value={diagnosticForm.pain}
+                      onChange={(event) => setDiagnosticForm(prev => ({ ...prev, pain: event.target.value }))}
+                      required
+                      rows={4}
+                      className="w-full resize-none rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                      placeholder="Ex: turnover, onboarding lento, férias críticas, baixa visibilidade de clima..."
+                    />
+                  </label>
+                </div>
+                {diagnosticSubmitted && (
+                  <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
+                    Diagnóstico registrado. Lead salvo no pipeline local da demo.
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-cyan-800"
+                >
+                  Solicitar diagnóstico
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -739,7 +1074,14 @@ const App: React.FC = () => {
             </div>
           </section>
 
-          <section className="order-1 flex min-h-screen items-center justify-center bg-[#f5f7fb] px-6 py-10 sm:px-10 lg:order-2">
+          <section className="relative order-1 flex min-h-screen items-center justify-center bg-[#f5f7fb] px-6 py-10 sm:px-10 lg:order-2">
+            <button
+              type="button"
+              onClick={() => setPublicView("landing")}
+              className="absolute right-6 top-6 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-500 shadow-sm transition hover:border-cyan-300 hover:text-cyan-700"
+            >
+              Voltar ao site
+            </button>
             <div className="w-full max-w-[29rem]">
               <div className="mb-7">
                 <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 shadow-sm">
