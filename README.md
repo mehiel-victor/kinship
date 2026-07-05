@@ -45,6 +45,20 @@ Essa aba também mostra o que deve ser provado na apresentação, últimas evid�
 
 Os casos de uso destacados na demonstração cobrem problemas reais de empresas: contratação sem contexto entre gestor e RH, sinais de clima chegando tarde demais e risco trabalhista/DP operando sem governança visível.
 
+## CI/CD Vercel
+
+O repositório inclui o workflow `.github/workflows/vercel-ci.yml` para GitHub Actions:
+
+- valida PRs e pushes com lint do cliente, build do cliente e testes do servidor;
+- cria deploy preview na Vercel para PRs abertos no próprio repositório;
+- publica produção na Vercel em todo push para `master`.
+
+Secrets usados pelo workflow:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
 ## Como Executar o Projeto
 
 ### Pré-requisitos
