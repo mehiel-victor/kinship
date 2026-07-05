@@ -41,14 +41,14 @@ A landing pública inclui melhorias focadas em conversão comercial e validaçã
 
 ## Acessos do Workspace
 
-O front-end publicado na Vercel usa autenticação por email/senha para apresentar a experiência por perfil sem exigir provisionamento externo. As credenciais abaixo representam contas da empresa cliente OrbitaTech:
+O front-end publicado na Vercel usa autenticação por email/senha para apresentar a experiência por perfil sem exigir provisionamento externo. As credenciais abaixo representam contas de workspace por papel:
 
 | Perfil | Email | Senha | Permissões |
 | --- | --- | --- | --- |
-| Colaborador | `joao.silva@orbitatech.com` | `Kinship@2026` | Feedback 360, pesquisa de clima e férias |
-| Gestora técnica | `maria.santos@orbitatech.com` | `Kinship@2026` | Time, vagas, performance e compliance |
-| Recursos Humanos | `carla.pereira@orbitatech.com` | `Kinship@2026` | People Ops completo |
-| Administrador | `admin@orbitatech.com` | `Kinship@2026` | Visão administrativa geral |
+| Colaborador | `joao.silva@kinship.app` | `Kinship@2026` | Feedback 360, pesquisa de clima e férias |
+| Gestora técnica | `maria.santos@kinship.app` | `Kinship@2026` | Time, vagas, performance e compliance |
+| Recursos Humanos | `carla.pereira@kinship.app` | `Kinship@2026` | People Ops completo |
+| Administrador | `admin@kinship.app` | `Kinship@2026` | Visão administrativa geral |
 
 As contas compartilham histórico operacional. Para testar a interação, entre como gestora, crie uma vaga ou envie um feedback, saia e entre como RH/Admin para ver a ação no painel **Atividade entre contas**.
 

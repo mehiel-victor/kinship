@@ -2,7 +2,7 @@ export const baseEmployees = [
   {
     id: "1",
     name: "João Silva",
-    email: "joao.silva@orbitatech.com",
+    email: "joao.silva@kinship.app",
     image: "https://i.pravatar.cc/150?img=1",
     job: "Desenvolvedor Frontend",
     status: "ACTIVE",
@@ -13,7 +13,7 @@ export const baseEmployees = [
   {
     id: "3",
     name: "Maria Santos",
-    email: "maria.santos@orbitatech.com",
+    email: "maria.santos@kinship.app",
     image: "https://i.pravatar.cc/150?img=3",
     job: "Tech Lead",
     status: "ACTIVE",
@@ -24,7 +24,7 @@ export const baseEmployees = [
   {
     id: "8",
     name: "Carla Pereira",
-    email: "carla.pereira@orbitatech.com",
+    email: "carla.pereira@kinship.app",
     image: "https://i.pravatar.cc/150?img=8",
     job: "Especialista RH",
     status: "ACTIVE",

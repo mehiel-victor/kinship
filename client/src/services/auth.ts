@@ -20,7 +20,7 @@ export const WORKSPACE_CREDENTIALS: WorkspaceCredential[] = [
   {
     id: "1",
     name: "João Silva",
-    email: "joao.silva@orbitatech.com",
+    email: "joao.silva@kinship.app",
     password: "Kinship@2026",
     role: "EMPLOYEE",
     departmentId: "DEP_TECH",
@@ -30,7 +30,7 @@ export const WORKSPACE_CREDENTIALS: WorkspaceCredential[] = [
   {
     id: "3",
     name: "Maria Santos",
-    email: "maria.santos@orbitatech.com",
+    email: "maria.santos@kinship.app",
     password: "Kinship@2026",
     role: "MANAGER",
     departmentId: "DEP_TECH",
@@ -40,7 +40,7 @@ export const WORKSPACE_CREDENTIALS: WorkspaceCredential[] = [
   {
     id: "8",
     name: "Carla Pereira",
-    email: "carla.pereira@orbitatech.com",
+    email: "carla.pereira@kinship.app",
     password: "Kinship@2026",
     role: "HR",
     departmentId: "DEP_HR",
@@ -50,7 +50,7 @@ export const WORKSPACE_CREDENTIALS: WorkspaceCredential[] = [
   {
     id: "1",
     name: "Administrador Geral",
-    email: "admin@orbitatech.com",
+    email: "admin@kinship.app",
     password: "Kinship@2026",
     role: "ADMIN",
     departmentId: "DEP_TECH",

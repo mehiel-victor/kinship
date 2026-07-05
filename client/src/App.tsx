@@ -221,7 +221,7 @@ const OPERATIONS_STEPS: OperationsStep[] = [
   {
     title: "Gestora abre demanda real",
     role: "Gestora técnica",
-    email: "maria.santos@orbitatech.com",
+    email: "maria.santos@kinship.app",
     tab: "talent",
     objective: "Criar uma vaga, acompanhar candidatos e registrar feedback 360 do time.",
     evidence: "RH/Admin enxerga a vaga e o feedback no histórico compartilhado.",
@@ -229,7 +229,7 @@ const OPERATIONS_STEPS: OperationsStep[] = [
   {
     title: "Colaborador gera sinal de clima e DP",
     role: "Colaborador",
-    email: "joao.silva@orbitatech.com",
+    email: "joao.silva@kinship.app",
     tab: "climate",
     objective: "Responder eNPS, solicitar férias e consultar feedback consolidado.",
     evidence: "O dashboard recalcula clima e o calendário de férias aparece para RH/Admin.",
@@ -237,7 +237,7 @@ const OPERATIONS_STEPS: OperationsStep[] = [
   {
     title: "RH controla risco operacional",
     role: "Recursos Humanos",
-    email: "carla.pereira@orbitatech.com",
+    email: "carla.pereira@kinship.app",
     tab: "dashboard",
     objective: "Revisar histórico, onboarding, auditoria de folha, vagas e gaps de sucessão.",
     evidence: "People Ops tem rastreabilidade do que aconteceu por perfil.",
@@ -245,7 +245,7 @@ const OPERATIONS_STEPS: OperationsStep[] = [
   {
     title: "Admin valida governança",
     role: "Administrador",
-    email: "admin@orbitatech.com",
+    email: "admin@kinship.app",
     tab: "payroll",
     objective: "Verificar compliance, exportar CNAB e revisar visão geral.",
     evidence: "O workspace mostra permissões, dados compartilhados e operação auditável.",

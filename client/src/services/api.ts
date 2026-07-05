@@ -71,7 +71,7 @@ const seedEmployees: WorkspaceEmployee[] = [
   {
     id: "12",
     name: "Rafael Almeida",
-    email: "rafael.almeida@orbitatech.com",
+    email: "rafael.almeida@kinship.app",
     image: "https://i.pravatar.cc/150?img=12",
     job: "Product Designer",
     status: "ONBOARDING",

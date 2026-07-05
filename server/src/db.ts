@@ -11,7 +11,7 @@ export const employees: Employee[] = [
   {
     id: '1',
     name: 'João Silva',
-    email: 'joao.silva@orbitatech.com',
+    email: 'joao.silva@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2019-12-02T00:00:00.000Z',
@@ -25,7 +25,7 @@ export const employees: Employee[] = [
   {
     id: '2',
     name: 'Roberto Souza',
-    email: 'roberto.souza@orbitatech.com',
+    email: 'roberto.souza@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2020-03-12T00:00:00.000Z',
@@ -39,7 +39,7 @@ export const employees: Employee[] = [
   {
     id: '3',
     name: 'Maria Santos',
-    email: 'maria.santos@orbitatech.com',
+    email: 'maria.santos@kinship.app',
     role: 'MANAGER',
     departmentId: 'DEP_TECH',
     hireDate: '2020-03-15T00:00:00.000Z',
@@ -53,7 +53,7 @@ export const employees: Employee[] = [
   {
     id: '4',
     name: 'Cleber Oliveira',
-    email: 'cleber.oliveira@orbitatech.com',
+    email: 'cleber.oliveira@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2020-06-01T00:00:00.000Z',
@@ -67,7 +67,7 @@ export const employees: Employee[] = [
   {
     id: '5',
     name: 'Giovana Costa',
-    email: 'giovana.costa@orbitatech.com',
+    email: 'giovana.costa@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_DESIGN',
     hireDate: '2020-06-20T00:00:00.000Z',
@@ -81,7 +81,7 @@ export const employees: Employee[] = [
   {
     id: '6',
     name: 'Mario Rossi',
-    email: 'mario.rossi@orbitatech.com',
+    email: 'mario.rossi@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2020-10-01T00:00:00.000Z',
@@ -95,7 +95,7 @@ export const employees: Employee[] = [
   {
     id: '7',
     name: 'Gabriel Gomes',
-    email: 'gabriel.gomes@orbitatech.com',
+    email: 'gabriel.gomes@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2021-01-01T00:00:00.000Z',
@@ -109,7 +109,7 @@ export const employees: Employee[] = [
   {
     id: '8',
     name: 'Carla Nogueira',
-    email: 'carla.nogueira@orbitatech.com',
+    email: 'carla.nogueira@kinship.app',
     role: 'HR',
     departmentId: 'DEP_HR',
     hireDate: '2021-03-01T00:00:00.000Z',
@@ -123,7 +123,7 @@ export const employees: Employee[] = [
   {
     id: '10',
     name: 'Fernanda Lima',
-    email: 'fernanda.lima@orbitatech.com',
+    email: 'fernanda.lima@kinship.app',
     role: 'HR',
     departmentId: 'DEP_HR',
     hireDate: '2021-05-01T00:00:00.000Z',
@@ -137,7 +137,7 @@ export const employees: Employee[] = [
   {
     id: '11',
     name: 'Aline Araujo',
-    email: 'aline.araujo@orbitatech.com',
+    email: 'aline.araujo@kinship.app',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2026-06-01T00:00:00.000Z',
