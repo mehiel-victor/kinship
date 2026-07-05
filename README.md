@@ -32,6 +32,19 @@ O front-end publicado na Vercel usa autenticação mockada por email/senha para 
 
 As contas compartilham um store local persistido no navegador. Para testar a interação, entre como gestora, crie uma vaga ou envie um feedback, saia e entre como RH/Admin para ver a ação no painel **Atividade entre contas**. Os dados continuam disponíveis após refresh enquanto o `localStorage` do navegador não for limpo.
 
+## Demonstração de Produto
+
+A primeira tela após login é a aba **Demo de Produto**, que apresenta um roteiro completo para demonstrar Kinship como produto real:
+
+1. gestora cria demanda e feedback;
+2. colaborador gera sinais de clima e DP;
+3. RH revisa riscos, onboarding e histórico;
+4. admin valida governança e compliance.
+
+Essa aba também mostra o que deve ser provado na apresentação, últimas evidências registradas e um botão para resetar o cenário local da demo.
+
+Os casos de uso destacados na demonstração cobrem problemas reais de empresas: contratação sem contexto entre gestor e RH, sinais de clima chegando tarde demais e risco trabalhista/DP operando sem governança visível.
+
 ## Como Executar o Projeto
 
 ### Pré-requisitos

@@ -246,6 +246,17 @@ function addActivity(
   store.activityLog = store.activityLog.slice(0, MAX_ACTIVITY_ITEMS);
 }
 
+function resetStore(body: Record<string, unknown>) {
+  const store = createInitialStore();
+  addActivity(store, body, "onboarding", "resetou os dados da demonstração", "Novo cenário de produto");
+  saveStore(store);
+  return {
+    ok: true,
+    resetAt: new Date().toISOString(),
+    activityLog: store.activityLog,
+  };
+}
+
 function ensureOnboarding(store: DemoStore, employeeId: string) {
   if (!store.onboardingByEmployeeId[employeeId]) {
     store.onboardingByEmployeeId[employeeId] = {
@@ -400,6 +411,10 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
   const path = url.pathname;
   const body = readBody(options);
   const store = getStore();
+
+  if (method === "POST" && path === "/demo/reset") {
+    return respond(clone(resetStore(body)));
+  }
 
   if (method === "GET" && path === "/employees") {
     const query = (url.searchParams.get("query") || "").trim().toLowerCase();

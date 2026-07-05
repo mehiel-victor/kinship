@@ -24,7 +24,15 @@ import {
   ArrowRight,
   LogOut,
   UserRoundCheck,
-  Activity as ActivityIcon
+  Activity as ActivityIcon,
+  ClipboardList,
+  PlayCircle,
+  RotateCcw,
+  CheckCircle2,
+  Building2,
+  Route,
+  Target,
+  Database
 } from "lucide-react";
 import {
   DEMO_CREDENTIALS,
@@ -39,10 +47,10 @@ import {
 import { fetchAPI } from "./services/api";
 
 const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
-  EMPLOYEE: ["performance", "climate", "payroll"],
-  MANAGER: ["dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
-  HR: ["dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
-  ADMIN: ["dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"]
+  EMPLOYEE: ["demo", "performance", "climate", "payroll"],
+  MANAGER: ["demo", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
+  HR: ["demo", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
+  ADMIN: ["demo", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"]
 };
 
 const getDefaultTab = (role: UserRole) => ROLE_PERMISSIONS[role]?.[0] || "performance";
@@ -162,6 +170,23 @@ type DemoActivity = {
   createdAt: string;
 };
 
+type DemoStep = {
+  title: string;
+  role: string;
+  email: string;
+  tab?: string;
+  objective: string;
+  evidence: string;
+};
+
+type ProductUseCase = {
+  problem: string;
+  flow: string;
+  impact: string;
+  owner: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
 const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
   talent: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/40",
   performance: "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/40",
@@ -169,6 +194,72 @@ const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
   payroll: "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/40",
   onboarding: "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-900/40",
 };
+
+const PRODUCT_DEMO_STEPS: DemoStep[] = [
+  {
+    title: "Gestora abre demanda real",
+    role: "Gestora técnica",
+    email: "maria.santos@kinship.demo",
+    tab: "talent",
+    objective: "Criar uma vaga, acompanhar candidatos e registrar feedback 360 do time.",
+    evidence: "RH/Admin enxerga a vaga e o feedback no histórico compartilhado.",
+  },
+  {
+    title: "Colaborador gera sinal de clima e DP",
+    role: "Colaborador",
+    email: "joao.silva@kinship.demo",
+    tab: "climate",
+    objective: "Responder eNPS, solicitar férias e consultar feedback consolidado.",
+    evidence: "O dashboard recalcula clima e o calendário de férias aparece para RH/Admin.",
+  },
+  {
+    title: "RH controla risco operacional",
+    role: "Recursos Humanos",
+    email: "carla.pereira@kinship.demo",
+    tab: "dashboard",
+    objective: "Revisar histórico, onboarding, auditoria de folha, vagas e gaps de sucessão.",
+    evidence: "People Ops tem rastreabilidade do que aconteceu por perfil.",
+  },
+  {
+    title: "Admin valida governança",
+    role: "Administrador",
+    email: "admin@kinship.demo",
+    tab: "payroll",
+    objective: "Verificar compliance, exportar CNAB mockado e revisar visão geral.",
+    evidence: "A demo mostra permissões, dados persistidos e operação auditável.",
+  },
+];
+
+const PRODUCT_DEMO_PROOFS = [
+  "Login por email/senha com RBAC por perfil.",
+  "Dados compartilhados entre contas via store local persistido.",
+  "Histórico de ações para demonstrar rastreabilidade operacional.",
+  "Fluxos de People Ops conectados: Talent, Performance, Clima, DP e Onboarding.",
+];
+
+const PRODUCT_USE_CASES: ProductUseCase[] = [
+  {
+    problem: "Contratação sem contexto entre gestor e RH",
+    flow: "A gestora abre vaga, acompanha candidatos e registra feedback 360 no mesmo histórico.",
+    impact: "Reduz retrabalho e deixa a decisão de contratação rastreável.",
+    owner: "Talent",
+    icon: Briefcase,
+  },
+  {
+    problem: "Sinais de clima chegam tarde demais",
+    flow: "Colaboradores respondem eNPS e RH acompanha variação por área com anonimização.",
+    impact: "Ajuda People Ops a priorizar intervenção antes de virar churn.",
+    owner: "Clima",
+    icon: TrendingUp,
+  },
+  {
+    problem: "Risco trabalhista e DP operando no escuro",
+    flow: "Solicitações de férias, auditoria de folha e CNAB ficam no fluxo de compliance.",
+    impact: "Diminui erro operacional e evidencia governança para liderança.",
+    owner: "DP",
+    icon: ShieldCheck,
+  },
+];
 
 const asData = <T,>(value: unknown) => value as T;
 
@@ -497,6 +588,21 @@ const App: React.FC = () => {
     }
   };
 
+  const handleResetDemo = async () => {
+    try {
+      await fetchAPI("/demo/reset", {
+        method: "POST",
+        body: JSON.stringify(actorPayload()),
+      });
+      setSelectedEmployee(null);
+      setSurveySubmitted(false);
+      setCnabPreview(null);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const startAuthenticatedSession = (user: AuthUser) => {
     setAuthState({ isAuthenticated: true, user });
     storeAuthUser(user);
@@ -696,6 +802,7 @@ const App: React.FC = () => {
 
           <nav className="space-y-1">
             {[
+              { id: "demo", label: "Demo de Produto", icon: ClipboardList },
               { id: "dashboard", label: "Analytics & Clima", icon: LayoutDashboard },
               { id: "employees", label: "Colaboradores", icon: Users },
               { id: "talent", label: "Talent & Vagas", icon: Briefcase },
@@ -767,6 +874,7 @@ const App: React.FC = () => {
         <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 shrink-0">
           <div>
             <h1 className="text-xl font-display font-bold text-slate-900 dark:text-white">
+              {activeTab === "demo" && "Demo de Produto"}
               {activeTab === "dashboard" && "Analytics & Clima"}
               {activeTab === "employees" && "Gestão de Colaboradores"}
               {activeTab === "talent" && "Talent Acquisition & Vagas"}
@@ -811,6 +919,183 @@ const App: React.FC = () => {
             </div>
           ) : (
             <>
+              {/* TAB 0: PRODUCT DEMO GUIDE */}
+              {activeTab === "demo" && (
+                <div className="space-y-8">
+                  <section className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 text-white shadow-sm dark:border-slate-800">
+                    <div className="grid gap-8 p-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)] lg:p-10">
+                      <div>
+                        <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-indigo-100">
+                          <Building2 className="h-4 w-4" />
+                          Demo completa de produto real
+                        </p>
+                        <h2 className="max-w-3xl font-display text-4xl font-black leading-tight tracking-tight sm:text-5xl">
+                          Simule uma operação de People Ops do problema até a evidência.
+                        </h2>
+                        <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                          O cenário mostra uma empresa em crescimento que precisa reduzir risco trabalhista, acelerar onboarding e dar visibilidade para gestores. Use contas diferentes para criar ações e veja os efeitos persistirem no produto.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3">
+                        {[
+                          { label: "Contas com RBAC", value: "4", icon: UserRoundCheck },
+                          { label: "Módulos conectados", value: "7", icon: Route },
+                          { label: "Store persistido", value: "Local", icon: Database },
+                        ].map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <div key={item.label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.06] p-4">
+                              <div>
+                                <span className="block text-[10px] font-black uppercase tracking-wider text-slate-400">{item.label}</span>
+                                <strong className="mt-1 block font-display text-2xl font-black">{item.value}</strong>
+                              </div>
+                              <Icon className="h-5 w-5 text-indigo-300" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="mb-4 flex items-end justify-between gap-4">
+                      <div>
+                        <h3 className="font-display text-xl font-extrabold text-slate-950 dark:text-white">
+                          Problemas reais que a Kinship resolve
+                        </h3>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          Cada cenário conecta uma dor de empresa a uma evidência demonstrável no produto.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 lg:grid-cols-3">
+                      {PRODUCT_USE_CASES.map((useCase) => {
+                        const Icon = useCase.icon;
+                        return (
+                          <article key={useCase.problem} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
+                                <Icon className="h-5 w-5" />
+                              </span>
+                              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                                {useCase.owner}
+                              </span>
+                            </div>
+                            <h4 className="font-display text-base font-extrabold text-slate-950 dark:text-white">
+                              {useCase.problem}
+                            </h4>
+                            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                              {useCase.flow}
+                            </p>
+                            <p className="mt-4 border-t border-slate-100 pt-4 text-xs font-semibold leading-5 text-emerald-700 dark:border-slate-800 dark:text-emerald-300">
+                              {useCase.impact}
+                            </p>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  <div className="grid gap-8 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,0.7fr)]">
+                    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <h3 className="font-display text-xl font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                            <PlayCircle className="h-5 w-5 text-indigo-500" /> Roteiro de demonstração
+                          </h3>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            Siga a sequência ou abra direto o módulo disponível para a conta atual.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleResetDemo}
+                          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-red-900/70 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                          Resetar dados
+                        </button>
+                      </div>
+
+                      <div className="grid gap-4">
+                        {PRODUCT_DEMO_STEPS.map((step, index) => {
+                          const canOpenTab = step.tab ? ROLE_PERMISSIONS[currentUser.role].includes(step.tab) : false;
+                          return (
+                            <article key={step.title} className="grid gap-4 rounded-xl border border-slate-100 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/40 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-start">
+                              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 font-display text-sm font-black text-white">
+                                {index + 1}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-display text-base font-extrabold text-slate-950 dark:text-white">{step.title}</h4>
+                                  <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
+                                    {step.role}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">{step.email}</p>
+                                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.objective}</p>
+                                <p className="mt-2 text-xs leading-5 text-slate-400">{step.evidence}</p>
+                              </div>
+                              <button
+                                type="button"
+                                disabled={!canOpenTab}
+                                onClick={() => step.tab && setActiveTab(step.tab)}
+                                className={`inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                                  canOpenTab
+                                    ? "bg-indigo-600 text-white hover:bg-indigo-500"
+                                    : "cursor-not-allowed bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
+                                }`}
+                              >
+                                Abrir módulo
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </button>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    <aside className="space-y-6">
+                      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <h3 className="font-display text-lg font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                          <Target className="h-5 w-5 text-indigo-500" /> O que provar
+                        </h3>
+                        <div className="mt-4 grid gap-3">
+                          {PRODUCT_DEMO_PROOFS.map((proof) => (
+                            <div key={proof} className="flex items-start gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800">
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                              <span className="text-sm leading-5 text-slate-600 dark:text-slate-300">{proof}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <h3 className="font-display text-lg font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
+                          <ActivityIcon className="h-5 w-5 text-indigo-500" /> Últimas evidências
+                        </h3>
+                        <div className="mt-4 grid gap-3">
+                          {activityLog.slice(0, 4).map((activity) => (
+                            <div key={activity.id} className="rounded-xl bg-slate-50 p-3 dark:bg-slate-950/50">
+                              <div className="flex items-center justify-between gap-3">
+                                <span className={`rounded-lg border px-2 py-1 text-[10px] font-black uppercase tracking-wider ${ACTIVITY_TONE_BY_TYPE[activity.type]}`}>
+                                  {activity.type}
+                                </span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{activity.actorRole}</span>
+                              </div>
+                              <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                                <strong>{activity.actorName}</strong> {activity.message}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    </aside>
+                  </div>
+                </div>
+              )}
+
               {/* TAB 1: DASHBOARD (ANALYTICS) */}
               {activeTab === "dashboard" && (
                 <div className="space-y-8">
