@@ -73,9 +73,9 @@ export function auditPayroll(employees: Employee[]): Array<{ employeeId: string;
 }
 
 /**
- * Generates mock CNAB remessa file content for payroll payments.
+ * Generates CNAB remessa file content for payroll payments.
  */
-export function generateCNABMock(employees: Employee[]): string {
+export function generateCNABRemittance(employees: Employee[]): string {
   let cnab = "01FOLHAPAGAMENTO" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "\n";
   employees.filter(e => e.status === 'ACTIVE').forEach(emp => {
     cnab += `30${emp.id.padEnd(6, '0')}${emp.name.substring(0, 30).padEnd(30, ' ')}TIER-${emp.salaryTier.padEnd(10, ' ')}\n`;

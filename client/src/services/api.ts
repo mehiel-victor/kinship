@@ -1,35 +1,35 @@
 import {
-  mockAnalytics,
-  mockCandidates,
-  mockClimateReport,
-  mockEmployees,
-  mockPayrollAudit,
-  mockPerformanceReviews,
-  mockVacationLimit,
-  mockVacations,
-  mockVacancies,
-} from "../mocks/mockData";
+  seedAnalytics,
+  seedCandidates,
+  seedClimateReport,
+  baseEmployees,
+  seedPayrollAudit,
+  seedPerformanceReviews,
+  seedVacationLimit,
+  seedVacations,
+  seedVacancies,
+} from "../data/seedData";
 
-type DemoEmployee = (typeof mockEmployees)[number];
-type DemoReview = (typeof mockPerformanceReviews.reviews)[number];
-type DemoScore = DemoReview["scores"][number];
-type DemoVacation = (typeof mockVacations)[number] & { id: string };
-type DemoVacancy = (typeof mockVacancies)[number];
-type DemoDocument = {
+type WorkspaceEmployee = (typeof baseEmployees)[number];
+type WorkspaceReview = (typeof seedPerformanceReviews.reviews)[number];
+type WorkspaceScore = WorkspaceReview["scores"][number];
+type WorkspaceVacation = (typeof seedVacations)[number] & { id: string };
+type WorkspaceVacancy = (typeof seedVacancies)[number];
+type WorkspaceDocument = {
   id: string;
   fileName: string;
   signedAt: string;
   sha256Hash: string;
   auditSignature: string;
 };
-type DemoTask = {
+type WorkspaceTask = {
   id: string;
   title: string;
   dueDate: string;
   phase: string;
   completed: boolean;
 };
-type DemoActivity = {
+type WorkspaceActivity = {
   id: string;
   type: "talent" | "performance" | "climate" | "payroll" | "onboarding";
   actorName: string;
@@ -38,15 +38,15 @@ type DemoActivity = {
   target?: string;
   createdAt: string;
 };
-type DemoStore = {
+type WorkspaceStore = {
   version: number;
-  employees: DemoEmployee[];
-  vacancies: DemoVacancy[];
-  reviews: DemoReview[];
-  vacations: DemoVacation[];
-  climateReport: typeof mockClimateReport;
-  onboardingByEmployeeId: Record<string, { tasks: DemoTask[]; documents: DemoDocument[] }>;
-  activityLog: DemoActivity[];
+  employees: WorkspaceEmployee[];
+  vacancies: WorkspaceVacancy[];
+  reviews: WorkspaceReview[];
+  vacations: WorkspaceVacation[];
+  climateReport: typeof seedClimateReport;
+  onboardingByEmployeeId: Record<string, { tasks: WorkspaceTask[]; documents: WorkspaceDocument[] }>;
+  activityLog: WorkspaceActivity[];
 };
 type LegacyAPIResponse = string &
   unknown[] & {
@@ -62,16 +62,16 @@ type LegacyAPIResponse = string &
     tasks: unknown[];
   };
 
-const STORE_KEY = "kinship.demo.store.v2";
-const STORE_VERSION = 2;
+const STORE_KEY = "kinship.workspace.store.v3";
+const STORE_VERSION = 3;
 const MAX_ACTIVITY_ITEMS = 32;
 
-const seedEmployees: DemoEmployee[] = [
-  ...mockEmployees,
+const seedEmployees: WorkspaceEmployee[] = [
+  ...baseEmployees,
   {
     id: "12",
     name: "Rafael Almeida",
-    email: "rafael.almeida@kinship.demo",
+    email: "rafael.almeida@orbitatech.com",
     image: "https://i.pravatar.cc/150?img=12",
     job: "Product Designer",
     status: "ONBOARDING",
@@ -81,7 +81,7 @@ const seedEmployees: DemoEmployee[] = [
   },
 ];
 
-const seedOnboarding: DemoStore["onboardingByEmployeeId"] = {
+const seedOnboarding: WorkspaceStore["onboardingByEmployeeId"] = {
   "12": {
     tasks: [
       {
@@ -124,17 +124,17 @@ function respond(value: unknown): LegacyAPIResponse {
   return value as LegacyAPIResponse;
 }
 
-function createInitialStore(): DemoStore {
+function createInitialStore(): WorkspaceStore {
   return {
     version: STORE_VERSION,
     employees: clone(seedEmployees),
-    vacancies: clone(mockVacancies),
-    reviews: clone(mockPerformanceReviews.reviews),
-    vacations: mockVacations.map((vacation, index) => ({
+    vacancies: clone(seedVacancies),
+    reviews: clone(seedPerformanceReviews.reviews),
+    vacations: seedVacations.map((vacation, index) => ({
       ...clone(vacation),
       id: `VAC_${index + 1}`,
     })),
-    climateReport: clone(mockClimateReport),
+    climateReport: clone(seedClimateReport),
     onboardingByEmployeeId: clone(seedOnboarding),
     activityLog: [
       {
@@ -142,8 +142,8 @@ function createInitialStore(): DemoStore {
         type: "onboarding",
         actorName: "Sistema Kinship",
         actorRole: "SYSTEM",
-        message: "Demo inicializada com contas conectadas por um store local persistido.",
-        target: "LocalStorage",
+        message: "Workspace inicializado com contas conectadas e histórico compartilhado.",
+        target: "Operação Kinship",
         createdAt: "2026-07-05T00:00:00.000Z",
       },
     ],
@@ -154,12 +154,12 @@ function canUseStorage() {
   return typeof window !== "undefined" && Boolean(window.localStorage);
 }
 
-function saveStore(store: DemoStore) {
+function saveStore(store: WorkspaceStore) {
   if (!canUseStorage()) return;
   window.localStorage.setItem(STORE_KEY, JSON.stringify(store));
 }
 
-function isValidStore(value: Partial<DemoStore>) {
+function isValidStore(value: Partial<WorkspaceStore>) {
   return (
     value.version === STORE_VERSION &&
     Array.isArray(value.employees) &&
@@ -179,9 +179,9 @@ function getStore() {
   const rawStore = window.localStorage.getItem(STORE_KEY);
   if (rawStore) {
     try {
-      const parsed = JSON.parse(rawStore) as Partial<DemoStore>;
+      const parsed = JSON.parse(rawStore) as Partial<WorkspaceStore>;
       if (isValidStore(parsed)) {
-        return parsed as DemoStore;
+        return parsed as WorkspaceStore;
       }
     } catch {
       window.localStorage.removeItem(STORE_KEY);
@@ -193,7 +193,7 @@ function getStore() {
   return store;
 }
 
-function persistMutation<T>(mutator: (store: DemoStore) => T) {
+function persistMutation<T>(mutator: (store: WorkspaceStore) => T) {
   const store = getStore();
   const result = mutator(store);
   saveStore(store);
@@ -205,7 +205,7 @@ function getMethod(options?: RequestInit) {
 }
 
 function parseEndpoint(endpoint: string) {
-  return new URL(endpoint, "https://kinship.demo.local");
+  return new URL(endpoint, "https://workspace.kinship.internal");
 }
 
 function readBody(options?: RequestInit): Record<string, unknown> {
@@ -222,15 +222,15 @@ function readBody(options?: RequestInit): Record<string, unknown> {
 
 function getActor(body: Record<string, unknown>) {
   return {
-    actorName: String(body.actorName || "Conta demo"),
-    actorRole: String(body.actorRole || "DEMO"),
+    actorName: String(body.actorName || "Conta operacional"),
+    actorRole: String(body.actorRole || "SYSTEM"),
   };
 }
 
 function addActivity(
-  store: DemoStore,
+  store: WorkspaceStore,
   body: Record<string, unknown>,
-  type: DemoActivity["type"],
+  type: WorkspaceActivity["type"],
   message: string,
   target?: string,
 ) {
@@ -248,7 +248,7 @@ function addActivity(
 
 function resetStore(body: Record<string, unknown>) {
   const store = createInitialStore();
-  addActivity(store, body, "onboarding", "resetou os dados da demonstração", "Novo cenário de produto");
+  addActivity(store, body, "onboarding", "reiniciou o cenário operacional", "Novo ciclo de operação");
   saveStore(store);
   return {
     ok: true,
@@ -257,7 +257,7 @@ function resetStore(body: Record<string, unknown>) {
   };
 }
 
-function ensureOnboarding(store: DemoStore, employeeId: string) {
+function ensureOnboarding(store: WorkspaceStore, employeeId: string) {
   if (!store.onboardingByEmployeeId[employeeId]) {
     store.onboardingByEmployeeId[employeeId] = {
       tasks: [
@@ -283,7 +283,7 @@ function ensureOnboarding(store: DemoStore, employeeId: string) {
   return store.onboardingByEmployeeId[employeeId];
 }
 
-function updateEmployeeStatus(store: DemoStore, employeeId: string) {
+function updateEmployeeStatus(store: WorkspaceStore, employeeId: string) {
   const onboarding = ensureOnboarding(store, employeeId);
   const employee = store.employees.find((item) => item.id === employeeId);
   if (!employee) return "ACTIVE";
@@ -294,7 +294,7 @@ function updateEmployeeStatus(store: DemoStore, employeeId: string) {
   return employee.status;
 }
 
-function getConsolidatedScores(store: DemoStore, employeeId: string) {
+function getConsolidatedScores(store: WorkspaceStore, employeeId: string) {
   const reviews = store.reviews.filter((review) => review.employeeId === employeeId);
   const scores = new Map<string, { total: number; count: number }>();
 
@@ -320,9 +320,9 @@ function getConsolidatedScores(store: DemoStore, employeeId: string) {
   );
 }
 
-function createReview(store: DemoStore, body: Record<string, unknown>) {
-  const scores = Array.isArray(body.scores) ? (body.scores as DemoScore[]) : [];
-  const review: DemoReview = {
+function createReview(store: WorkspaceStore, body: Record<string, unknown>) {
+  const scores = Array.isArray(body.scores) ? (body.scores as WorkspaceScore[]) : [];
+  const review: WorkspaceReview = {
     id: `REV_${store.reviews.length + 1}`,
     employeeId: String(body.employeeId || "1"),
     evaluatorId: String(body.evaluatorId || "1"),
@@ -338,12 +338,12 @@ function createReview(store: DemoStore, body: Record<string, unknown>) {
   return review;
 }
 
-function createVacancy(store: DemoStore, body: Record<string, unknown>) {
+function createVacancy(store: WorkspaceStore, body: Record<string, unknown>) {
   const requirements = Array.isArray(body.requirements) ? (body.requirements as string[]) : [];
-  const vacancy: DemoVacancy = {
+    const vacancy: WorkspaceVacancy = {
     id: `v${store.vacancies.length + 1}`,
     title: String(body.title || "Nova vaga"),
-    description: String(body.description || "Vaga criada no modo demo."),
+    description: String(body.description || "Vaga criada no workspace."),
     departmentId: String(body.departmentId || "DEP_TECH"),
     requirements,
   };
@@ -353,14 +353,14 @@ function createVacancy(store: DemoStore, body: Record<string, unknown>) {
   return vacancy;
 }
 
-function createVacation(store: DemoStore, body: Record<string, unknown>) {
+function createVacation(store: WorkspaceStore, body: Record<string, unknown>) {
   const employeeId = String(body.employeeId || "1");
-  const vacation: DemoVacation = {
+    const vacation: WorkspaceVacation = {
     id: `VAC_${store.vacations.length + 1}`,
     employeeId,
     startDate: String(body.startDate || "2026-08-01"),
     endDate: String(body.endDate || "2026-08-15"),
-    reason: String(body.reason || "Solicitação criada no modo demo"),
+    reason: String(body.reason || "Solicitação criada no workspace"),
     status: "APPROVED",
   };
 
@@ -370,7 +370,7 @@ function createVacation(store: DemoStore, body: Record<string, unknown>) {
   return vacation;
 }
 
-function registerClimateResponse(store: DemoStore, body: Record<string, unknown>) {
+function registerClimateResponse(store: WorkspaceStore, body: Record<string, unknown>) {
   const departmentId = String(body.departmentId || "DEP_TECH");
   const enpsScore = Number(body.enpsScore || 0);
   const scaledScore = Math.max(0, Math.min(100, enpsScore * 10));
@@ -390,7 +390,7 @@ function registerClimateResponse(store: DemoStore, body: Record<string, unknown>
   };
 }
 
-function createCNABPreview(store: DemoStore) {
+function createCNABPreview(store: WorkspaceStore) {
   const activeEmployees = store.employees.filter((employee) => employee.status === "ACTIVE");
   const detailLines = activeEmployees.map((employee, index) => {
     const sequence = String(index + 1).padStart(6, "0");
@@ -399,7 +399,7 @@ function createCNABPreview(store: DemoStore) {
   });
 
   return [
-    "0KINSHIP DEMO        FOLHA PAGAMENTO   20260705",
+    "0KINSHIP OPERACAO    FOLHA PAGAMENTO   20260705",
     ...detailLines,
     `9${String(detailLines.length).padStart(6, "0")}REGISTROS`,
   ].join("\n");
@@ -412,7 +412,7 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
   const body = readBody(options);
   const store = getStore();
 
-  if (method === "POST" && path === "/demo/reset") {
+  if (method === "POST" && path === "/workspace/reset") {
     return respond(clone(resetStore(body)));
   }
 
@@ -461,7 +461,7 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
       const result = persistMutation((currentStore) => {
         const onboarding = ensureOnboarding(currentStore, employeeId);
         const fileName = String(body.fileName || "Documento_Assinado.pdf");
-        const document: DemoDocument = {
+        const document: WorkspaceDocument = {
           id: `doc-${onboarding.documents.length + 1}`,
           fileName,
           signedAt: new Date().toISOString(),
@@ -488,7 +488,7 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
   if (method === "GET" && path === "/analytics") {
     const onboardingCount = store.employees.filter((employee) => employee.status === "ONBOARDING").length;
     return respond(clone({
-      ...mockAnalytics,
+      ...seedAnalytics,
       headcount: store.employees.length,
       activeCount: store.employees.length - onboardingCount,
       onboardingCount,
@@ -501,7 +501,7 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
   }
 
   if (method === "GET" && path === "/talent/candidates") {
-    return respond(clone(mockCandidates));
+    return respond(clone(seedCandidates));
   }
 
   if (path === "/talent/vacancies") {
@@ -537,19 +537,19 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
     if (method === "GET") {
       return respond(clone({
         reviews: store.reviews,
-        consolidated: mockPerformanceReviews.consolidated,
+        consolidated: seedPerformanceReviews.consolidated,
       }));
     }
   }
 
   if (method === "GET" && path === "/payroll/audit") {
-    return respond(clone(mockPayrollAudit));
+    return respond(clone(seedPayrollAudit));
   }
 
   const vacationLimitMatch = path.match(/^\/payroll\/vacations\/limit\/([^/]+)$/);
   if (method === "GET" && vacationLimitMatch) {
     return respond(clone({
-      ...mockVacationLimit,
+      ...seedVacationLimit,
       employeeId: vacationLimitMatch[1],
     }));
   }
@@ -566,5 +566,5 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
     return respond(createCNABPreview(store));
   }
 
-  throw new Error(`Kinship demo endpoint not implemented: ${method} ${path}`);
+  throw new Error(`Kinship workspace endpoint not implemented: ${method} ${path}`);
 }

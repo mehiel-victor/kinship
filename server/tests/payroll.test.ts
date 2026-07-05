@@ -15,7 +15,7 @@ describe('Module/PayrollCompliance', () => {
       {
         id: '1',
         name: 'João Silva',
-        email: 'joao@kinship.demo',
+        email: 'joao@orbitatech.com',
         role: 'EMPLOYEE',
         departmentId: 'DEP_TECH',
         hireDate: '2020-06-01T00:00:00.000Z',
@@ -29,7 +29,7 @@ describe('Module/PayrollCompliance', () => {
       {
         id: '2',
         name: 'Roberto Souza',
-        email: 'roberto@kinship.demo',
+        email: 'roberto@orbitatech.com',
         role: 'EMPLOYEE',
         departmentId: 'DEP_TECH',
         hireDate: '2020-06-01T00:00:00.000Z',
@@ -43,7 +43,7 @@ describe('Module/PayrollCompliance', () => {
       {
         id: '3',
         name: 'Giovana Costa',
-        email: 'giovana@kinship.demo',
+        email: 'giovana@orbitatech.com',
         role: 'EMPLOYEE',
         departmentId: 'DEP_DESIGN', // Different department
         hireDate: '2020-06-01T00:00:00.000Z',

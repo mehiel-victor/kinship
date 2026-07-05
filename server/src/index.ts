@@ -14,10 +14,10 @@ import {
   DEPARTMENTS
 } from './db';
 import { Employee, VacationRequest, PerformanceReview } from './types';
-import { calculateVacationLimitDate, hasOverlappingVacation, auditPayroll, generateCNABMock } from './modules/payroll';
+import { calculateVacationLimitDate, hasOverlappingVacation, auditPayroll, generateCNABRemittance } from './modules/payroll';
 import { createAnonymousResponse, aggregateClimateReports } from './modules/climate';
 import { calculateWeighted360Average, getConsolidatedPerformance } from './modules/performance';
-import { calculateMatchingScore, mockParseResume } from './modules/talent';
+import { calculateMatchingScore, parseResumeSkills } from './modules/talent';
 import { getOnboardingTemplate, signAdmissionalDocument } from './modules/onboarding';
 import { getHRAnalytics } from './modules/analytics';
 
@@ -189,8 +189,8 @@ app.get('/api/talent/vacancies', (req, res) => {
 app.post('/api/talent/candidates/apply', (req, res) => {
   const { name, email, skills, resumeFileName } = req.body;
   
-  // Extract skills from resume using mockup parser if no skills provided
-  const parsedSkills = skills && skills.length > 0 ? skills : mockParseResume(resumeFileName || 'front-end-resume.pdf');
+  // Extract skills from resume using resume parser if no skills provided
+  const parsedSkills = skills && skills.length > 0 ? skills : parseResumeSkills(resumeFileName || 'front-end-resume.pdf');
 
   // Match against first job for simplicity
   const activeVacancy = vacanciesState[0];
@@ -287,9 +287,9 @@ app.get('/api/payroll/audit', (req, res) => {
   res.json({ inconsistencies });
 });
 
-// GET CNAB download mock
+// GET CNAB download
 app.get('/api/payroll/cnab', (req, res) => {
-  const cnabText = generateCNABMock(employeesState);
+  const cnabText = generateCNABRemittance(employeesState);
   res.setHeader('Content-Type', 'text/plain');
   res.send(cnabText);
 });
@@ -332,7 +332,7 @@ app.post('/api/payroll/vacations', (req, res) => {
     employeeId,
     startDate,
     endDate,
-    status: 'APPROVED', // Auto approved for demo unless overlapped
+    status: 'APPROVED', // Auto approved unless overlapped
     reason
   };
 

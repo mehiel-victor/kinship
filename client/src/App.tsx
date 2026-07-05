@@ -46,10 +46,10 @@ import {
 import { fetchAPI } from "./services/api";
 
 const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
-  EMPLOYEE: ["demo", "performance", "climate", "payroll"],
-  MANAGER: ["demo", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
-  HR: ["demo", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
-  ADMIN: ["demo", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"]
+  EMPLOYEE: ["operations", "performance", "climate", "payroll"],
+  MANAGER: ["operations", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
+  HR: ["operations", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
+  ADMIN: ["operations", "dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"]
 };
 
 const getDefaultTab = (role: UserRole) => ROLE_PERMISSIONS[role]?.[0] || "performance";
@@ -159,7 +159,7 @@ type Analytics = {
   absenteeismRate: number;
 };
 
-type DemoActivity = {
+type WorkspaceActivity = {
   id: string;
   type: "talent" | "performance" | "climate" | "payroll" | "onboarding";
   actorName: string;
@@ -169,7 +169,7 @@ type DemoActivity = {
   createdAt: string;
 };
 
-type DemoStep = {
+type OperationsStep = {
   title: string;
   role: string;
   email: string;
@@ -209,7 +209,7 @@ type DiagnosticLead = DiagnosticLeadForm & {
   urgencyLabel: string;
 };
 
-const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
+const ACTIVITY_TONE_BY_TYPE: Record<WorkspaceActivity["type"], string> = {
   talent: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/40",
   performance: "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/40",
   climate: "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/40",
@@ -217,11 +217,11 @@ const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
   onboarding: "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-900/40",
 };
 
-const PRODUCT_DEMO_STEPS: DemoStep[] = [
+const OPERATIONS_STEPS: OperationsStep[] = [
   {
     title: "Gestora abre demanda real",
     role: "Gestora técnica",
-    email: "maria.santos@kinship.demo",
+    email: "maria.santos@orbitatech.com",
     tab: "talent",
     objective: "Criar uma vaga, acompanhar candidatos e registrar feedback 360 do time.",
     evidence: "RH/Admin enxerga a vaga e o feedback no histórico compartilhado.",
@@ -229,7 +229,7 @@ const PRODUCT_DEMO_STEPS: DemoStep[] = [
   {
     title: "Colaborador gera sinal de clima e DP",
     role: "Colaborador",
-    email: "joao.silva@kinship.demo",
+    email: "joao.silva@orbitatech.com",
     tab: "climate",
     objective: "Responder eNPS, solicitar férias e consultar feedback consolidado.",
     evidence: "O dashboard recalcula clima e o calendário de férias aparece para RH/Admin.",
@@ -237,7 +237,7 @@ const PRODUCT_DEMO_STEPS: DemoStep[] = [
   {
     title: "RH controla risco operacional",
     role: "Recursos Humanos",
-    email: "carla.pereira@kinship.demo",
+    email: "carla.pereira@orbitatech.com",
     tab: "dashboard",
     objective: "Revisar histórico, onboarding, auditoria de folha, vagas e gaps de sucessão.",
     evidence: "People Ops tem rastreabilidade do que aconteceu por perfil.",
@@ -245,17 +245,17 @@ const PRODUCT_DEMO_STEPS: DemoStep[] = [
   {
     title: "Admin valida governança",
     role: "Administrador",
-    email: "admin@kinship.demo",
+    email: "admin@orbitatech.com",
     tab: "payroll",
-    objective: "Verificar compliance, exportar CNAB mockado e revisar visão geral.",
-    evidence: "A demo mostra permissões, dados persistidos e operação auditável.",
+    objective: "Verificar compliance, exportar CNAB e revisar visão geral.",
+    evidence: "O workspace mostra permissões, dados compartilhados e operação auditável.",
   },
 ];
 
-const PRODUCT_DEMO_PROOFS = [
+const OPERATIONS_PROOFS = [
   "Login por email/senha com RBAC por perfil.",
-  "Dados compartilhados entre contas via store local persistido.",
-  "Histórico de ações para demonstrar rastreabilidade operacional.",
+  "Dados compartilhados entre contas e histórico persistido.",
+  "Histórico de ações para rastreabilidade operacional.",
   "Fluxos de People Ops conectados: Talent, Performance, Clima, DP e Onboarding.",
 ];
 
@@ -293,7 +293,7 @@ const PILOT_DELIVERABLES = [
   "Diagnóstico inicial de People Ops em 48h.",
   "Cockpit de risco com clima, DP, onboarding e sucessão.",
   "Roteiro semanal de ações para RH, gestores e liderança.",
-  "Setup assistido com dados fictícios ou planilha real higienizada.",
+  "Setup assistido com dados da operação ou planilha higienizada.",
 ];
 
 const GTM_METRICS = [
@@ -422,7 +422,7 @@ const App: React.FC = () => {
 
   // Global Analytics
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [activityLog, setActivityLog] = useState<DemoActivity[]>([]);
+  const [activityLog, setActivityLog] = useState<WorkspaceActivity[]>([]);
 
   // Loading triggers
   const [loading, setLoading] = useState(true);
@@ -468,7 +468,7 @@ const App: React.FC = () => {
         setAnalytics(asData<Analytics>(analyticsData));
 
         const activityData = await fetchAPI("/activity");
-        setActivityLog(asData<DemoActivity[]>(activityData));
+        setActivityLog(asData<WorkspaceActivity[]>(activityData));
 
         // Fetch Talent (Candidates and Vacancies)
         const candidatesData = await fetchAPI("/talent/candidates");
@@ -686,9 +686,9 @@ const App: React.FC = () => {
     }
   };
 
-  const handleResetDemo = async () => {
+  const handleResetWorkspace = async () => {
     try {
-      await fetchAPI("/demo/reset", {
+      await fetchAPI("/workspace/reset", {
         method: "POST",
         body: JSON.stringify(actorPayload()),
       });
@@ -898,7 +898,7 @@ const App: React.FC = () => {
                 {[
                   { title: "Sinais fragmentados", text: "Clima em um formulário, férias em planilha, onboarding em checklist e feedback em conversas soltas.", icon: Database },
                   { title: "Risco priorizado", text: "Kinship organiza esses sinais por severidade, dono da ação e impacto esperado para a operação.", icon: Target },
-                  { title: "Ação rastreável", text: "Cada decisão fica conectada ao perfil, módulo e histórico para demonstrar governança.", icon: Route },
+                  { title: "Ação rastreável", text: "Cada decisão fica conectada ao perfil, módulo e histórico para comprovar governança.", icon: Route },
                 ].map((item) => {
                   const Icon = item.icon;
                   return (
@@ -945,7 +945,7 @@ const App: React.FC = () => {
                 <span className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">próximo passo comercial</span>
                 <h2 className="mt-3 font-display text-4xl font-black tracking-tight sm:text-5xl">Agende um diagnóstico de People Ops.</h2>
                 <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
-                  Use este formulário como captação inicial de leads. Na demo, as submissões ficam salvas localmente no navegador para simular pipeline comercial.
+                  Use este formulário para qualificar contas, priorizar oportunidades e preparar o diagnóstico executivo antes do primeiro contato comercial.
                 </p>
                 <div className="mt-8 grid gap-3 sm:grid-cols-2">
                   {["10 conversas com Heads de RH", "3 pilotos pagos", "1 caso de uso repetível", "90 dias para validar PMF"].map((item) => (
@@ -983,7 +983,7 @@ const App: React.FC = () => {
               <form onSubmit={handleDiagnosticSubmit} className="rounded-lg border border-white/10 bg-white p-5 text-slate-950 shadow-2xl shadow-black/30">
                 <div className="mb-5">
                   <h3 className="font-display text-2xl font-black">Diagnóstico inicial</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">Qualifique a empresa antes de mostrar a demo completa.</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">Qualifique a empresa antes de apresentar o plano de ação.</p>
                 </div>
                 <div className="grid gap-4">
                   <label className="block">
@@ -1078,7 +1078,7 @@ const App: React.FC = () => {
                 </div>
                 {diagnosticResult && (
                   <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
-                    Diagnóstico registrado como {diagnosticResult.tier.toLowerCase()}. Lead salvo no pipeline local da demo.
+                    Diagnóstico registrado como {diagnosticResult.tier.toLowerCase()}. Lead salvo no pipeline comercial.
                   </div>
                 )}
                 <button
@@ -1184,7 +1184,7 @@ const App: React.FC = () => {
                   {[
                     { label: "Perfis com RBAC", value: "4", icon: UserRoundCheck },
                     { label: "Módulos ativos", value: "7", icon: Route },
-                    { label: "Dados persistidos", value: "Local", icon: Database },
+                    { label: "Auditoria ativa", value: "On", icon: Database },
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
@@ -1328,7 +1328,7 @@ const App: React.FC = () => {
 
           <nav className="space-y-1">
             {[
-              { id: "demo", label: "Demo de Produto", icon: ClipboardList },
+              { id: "operations", label: "Cockpit Operacional", icon: ClipboardList },
               { id: "dashboard", label: "Analytics & Clima", icon: LayoutDashboard },
               { id: "employees", label: "Colaboradores", icon: Users },
               { id: "talent", label: "Talent & Vagas", icon: Briefcase },
@@ -1400,7 +1400,7 @@ const App: React.FC = () => {
         <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between px-8 shrink-0">
           <div>
             <h1 className="text-xl font-display font-bold text-slate-900 dark:text-white">
-              {activeTab === "demo" && "Demo de Produto"}
+              {activeTab === "operations" && "Cockpit Operacional"}
               {activeTab === "dashboard" && "Analytics & Clima"}
               {activeTab === "employees" && "Gestão de Colaboradores"}
               {activeTab === "talent" && "Talent Acquisition & Vagas"}
@@ -1445,21 +1445,21 @@ const App: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* TAB 0: PRODUCT DEMO GUIDE */}
-              {activeTab === "demo" && (
+              {/* TAB 0: OPERATIONS COCKPIT */}
+              {activeTab === "operations" && (
                 <div className="space-y-8">
                   <section className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-950 text-white shadow-sm dark:border-slate-800">
                     <div className="grid gap-8 p-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)] lg:p-10">
                       <div>
                         <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-indigo-100">
                           <Building2 className="h-4 w-4" />
-                          Demo completa de produto real
+                          Cockpit operacional
                         </p>
                         <h2 className="max-w-3xl font-display text-4xl font-black leading-tight tracking-tight sm:text-5xl">
-                          Simule uma operação de People Ops do problema até a evidência.
+                          Conduza a operação de People Ops do risco até a evidência.
                         </h2>
                         <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                          O cenário mostra uma empresa em crescimento que precisa reduzir risco trabalhista, acelerar onboarding e dar visibilidade para gestores. Use contas diferentes para criar ações e veja os efeitos persistirem no produto.
+                          O workspace acompanha uma empresa em crescimento que precisa reduzir risco trabalhista, acelerar onboarding e dar visibilidade para gestores. Use perfis diferentes para criar ações e acompanhar o impacto no produto.
                         </p>
                       </div>
 
@@ -1467,7 +1467,7 @@ const App: React.FC = () => {
                         {[
                           { label: "Contas com RBAC", value: "4", icon: UserRoundCheck },
                           { label: "Módulos conectados", value: "7", icon: Route },
-                          { label: "Store persistido", value: "Local", icon: Database },
+                          { label: "Histórico auditável", value: "Ativo", icon: Database },
                         ].map((item) => {
                           const Icon = item.icon;
                           return (
@@ -1491,7 +1491,7 @@ const App: React.FC = () => {
                           Problemas reais que a Kinship resolve
                         </h3>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                          Cada cenário conecta uma dor de empresa a uma evidência demonstrável no produto.
+                          Cada cenário conecta uma dor de empresa a uma evidência operacional no produto.
                         </p>
                       </div>
                     </div>
@@ -1528,7 +1528,7 @@ const App: React.FC = () => {
                       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <h3 className="font-display text-xl font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
-                            <PlayCircle className="h-5 w-5 text-indigo-500" /> Roteiro de demonstração
+                            <PlayCircle className="h-5 w-5 text-indigo-500" /> Plano operacional
                           </h3>
                           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             Siga a sequência ou abra direto o módulo disponível para a conta atual.
@@ -1536,16 +1536,16 @@ const App: React.FC = () => {
                         </div>
                         <button
                           type="button"
-                          onClick={handleResetDemo}
+                          onClick={handleResetWorkspace}
                           className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-red-900/70 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                         >
                           <RotateCcw className="h-4 w-4" />
-                          Resetar dados
+                          Reiniciar cenário
                         </button>
                       </div>
 
                       <div className="grid gap-4">
-                        {PRODUCT_DEMO_STEPS.map((step, index) => {
+                        {OPERATIONS_STEPS.map((step, index) => {
                           const canOpenTab = step.tab ? ROLE_PERMISSIONS[currentUser.role].includes(step.tab) : false;
                           return (
                             <article key={step.title} className="grid gap-4 rounded-xl border border-slate-100 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/40 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-start">
@@ -1585,10 +1585,10 @@ const App: React.FC = () => {
                     <aside className="space-y-6">
                       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <h3 className="font-display text-lg font-extrabold text-slate-950 dark:text-white flex items-center gap-2">
-                          <Target className="h-5 w-5 text-indigo-500" /> O que provar
+                          <Target className="h-5 w-5 text-indigo-500" /> O que acompanhar
                         </h3>
                         <div className="mt-4 grid gap-3">
-                          {PRODUCT_DEMO_PROOFS.map((proof) => (
+                          {OPERATIONS_PROOFS.map((proof) => (
                             <div key={proof} className="flex items-start gap-3 rounded-xl border border-slate-100 p-3 dark:border-slate-800">
                               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
                               <span className="text-sm leading-5 text-slate-600 dark:text-slate-300">{proof}</span>
@@ -1744,7 +1744,7 @@ const App: React.FC = () => {
                         </p>
                       </div>
                       <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">
-                        Store local persistido
+                        Histórico operacional persistido
                       </span>
                     </div>
 

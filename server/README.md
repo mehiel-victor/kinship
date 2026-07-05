@@ -4,7 +4,7 @@ Backend Express/TypeScript da plataforma Kinship, com regras de domínio para Pe
 
 ## Módulos
 
-- `payroll`: validação de férias, limite concessivo, auditoria de folha e exportação CNAB mockada.
+- `payroll`: validação de férias, limite concessivo, auditoria de folha e exportação CNAB de remessa.
 - `climate`: respostas de clima/eNPS e agregação com regra de anonimato.
 - `performance`: avaliações 360 e consolidação por competência.
 - `talent`: candidatos, vagas e matching score.

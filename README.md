@@ -16,7 +16,7 @@ O projeto é estruturado como um monorepo dividido em:
 3. **Onboarding**: Checklists de progresso e verificação/assinatura de documentos com assinatura digital SHA-256.
 4. **Performance**: Módulo de avaliação 360° com cálculo automático de médias.
 5. **Climate**: Coletor de eNPS com anonimato assegurado e agregação restrita a times com 3 ou mais membros.
-6. **Payroll & Compliance**: Regras de férias, cálculo de limite de período concessivo, bloqueio de sobreposição de férias críticas e exportação CNAB mockada.
+6. **Payroll & Compliance**: Regras de férias, cálculo de limite de período concessivo, bloqueio de sobreposição de férias críticas e exportação CNAB de remessa.
 7. **Analytics**: Headcount, turnover, absenteísmo e análise de correlação preditiva.
 
 ## Oferta Comercial
@@ -28,8 +28,8 @@ O fluxo público inclui:
 - landing page focada no ICP de empresas tech/serviços B2B com 80-300 funcionários;
 - oferta de piloto de 30 dias com faixa de preço sugerida de `R$ 1.500 - R$ 3.000/mês`;
 - CTA de diagnóstico de People Ops com qualificação por headcount, área de risco e urgência;
-- formulário que calcula prioridade comercial, recomenda próximo passo e salva leads localmente em `kinship.diagnostic.leads`;
-- acesso separado ao workspace autenticado da demo.
+- formulário que calcula prioridade comercial, recomenda próximo passo e mantém o lead no pipeline comercial do workspace;
+- acesso separado ao workspace autenticado do produto.
 
 ## Melhorias de Produto
 
@@ -39,31 +39,31 @@ A landing pública inclui melhorias focadas em conversão comercial e validaçã
 - resposta pós-envio com prioridade, recomendação comercial e próximo passo;
 - microprovas no hero destacando diagnóstico em 48h, plano semanal de risco e piloto assistido.
 
-## Login da Demo
+## Acessos do Workspace
 
-O front-end publicado na Vercel usa autenticação mockada por email/senha para demonstrar RBAC sem depender de backend local. As credenciais abaixo são apenas para a demo:
+O front-end publicado na Vercel usa autenticação por email/senha para apresentar a experiência por perfil sem exigir provisionamento externo. As credenciais abaixo representam contas da empresa cliente OrbitaTech:
 
-| Perfil | Email | Senha | Permissões demonstradas |
+| Perfil | Email | Senha | Permissões |
 | --- | --- | --- | --- |
-| Colaborador | `joao.silva@kinship.demo` | `Kinship@2026` | Feedback 360, pesquisa de clima e férias |
-| Gestora técnica | `maria.santos@kinship.demo` | `Kinship@2026` | Time, vagas, performance e compliance |
-| Recursos Humanos | `carla.pereira@kinship.demo` | `Kinship@2026` | People Ops completo |
-| Administrador | `admin@kinship.demo` | `Kinship@2026` | Visão administrativa geral |
+| Colaborador | `joao.silva@orbitatech.com` | `Kinship@2026` | Feedback 360, pesquisa de clima e férias |
+| Gestora técnica | `maria.santos@orbitatech.com` | `Kinship@2026` | Time, vagas, performance e compliance |
+| Recursos Humanos | `carla.pereira@orbitatech.com` | `Kinship@2026` | People Ops completo |
+| Administrador | `admin@orbitatech.com` | `Kinship@2026` | Visão administrativa geral |
 
-As contas compartilham um store local persistido no navegador. Para testar a interação, entre como gestora, crie uma vaga ou envie um feedback, saia e entre como RH/Admin para ver a ação no painel **Atividade entre contas**. Os dados continuam disponíveis após refresh enquanto o `localStorage` do navegador não for limpo.
+As contas compartilham histórico operacional. Para testar a interação, entre como gestora, crie uma vaga ou envie um feedback, saia e entre como RH/Admin para ver a ação no painel **Atividade entre contas**.
 
-## Demonstração de Produto
+## Workspace de Produto
 
-A primeira tela após login é a aba **Demo de Produto**, que apresenta um roteiro completo para demonstrar Kinship como produto real:
+A primeira tela após login é a aba **Cockpit Operacional**, que apresenta um fluxo completo de trabalho:
 
 1. gestora cria demanda e feedback;
 2. colaborador gera sinais de clima e DP;
 3. RH revisa riscos, onboarding e histórico;
 4. admin valida governança e compliance.
 
-Essa aba também mostra o que deve ser provado na apresentação, últimas evidências registradas e um botão para resetar o cenário local da demo.
+Essa aba também mostra o que acompanhar na operação, últimas evidências registradas e um botão para reiniciar o cenário operacional.
 
-Os casos de uso destacados na demonstração cobrem problemas reais de empresas: contratação sem contexto entre gestor e RH, sinais de clima chegando tarde demais e risco trabalhista/DP operando sem governança visível.
+Os casos de uso destacados cobrem problemas reais de empresas: contratação sem contexto entre gestor e RH, sinais de clima chegando tarde demais e risco trabalhista/DP operando sem governança visível.
 
 ## CI/CD Vercel
 

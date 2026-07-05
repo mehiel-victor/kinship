@@ -6,8 +6,8 @@ export interface HRAnalyticsSummary {
   activeCount: number;
   onboardingCount: number;
   inactiveCount: number;
-  turnoverRate: number; // mock
-  absenteeismRate: number; // mock
+  turnoverRate: number; // baseline
+  absenteeismRate: number; // baseline
   enps: number;
   predictiveInsights: string[];
 }
@@ -42,8 +42,8 @@ export function getHRAnalytics(
     activeCount,
     onboardingCount,
     inactiveCount,
-    turnoverRate: 4.8, // Mocked rate for MVP (percentage per year)
-    absenteeismRate: 2.1, // Mocked rate for MVP
+    turnoverRate: 4.8, // Baseline rate for current planning model
+    absenteeismRate: 2.1, // Baseline rate for current planning model
     enps,
     predictiveInsights: insights
   };

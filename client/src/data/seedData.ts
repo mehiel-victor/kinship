@@ -1,8 +1,8 @@
-export const mockEmployees = [
+export const baseEmployees = [
   {
     id: "1",
     name: "João Silva",
-    email: "joao.silva@kinship.demo",
+    email: "joao.silva@orbitatech.com",
     image: "https://i.pravatar.cc/150?img=1",
     job: "Desenvolvedor Frontend",
     status: "ACTIVE",
@@ -13,7 +13,7 @@ export const mockEmployees = [
   {
     id: "3",
     name: "Maria Santos",
-    email: "maria.santos@kinship.demo",
+    email: "maria.santos@orbitatech.com",
     image: "https://i.pravatar.cc/150?img=3",
     job: "Tech Lead",
     status: "ACTIVE",
@@ -24,7 +24,7 @@ export const mockEmployees = [
   {
     id: "8",
     name: "Carla Pereira",
-    email: "carla.pereira@kinship.demo",
+    email: "carla.pereira@orbitatech.com",
     image: "https://i.pravatar.cc/150?img=8",
     job: "Especialista RH",
     status: "ACTIVE",
@@ -34,7 +34,7 @@ export const mockEmployees = [
   }
 ];
 
-export const mockAnalytics = {
+export const seedAnalytics = {
   headcount: 3,
   activeCount: 3,
   onboardingCount: 0,
@@ -47,7 +47,7 @@ export const mockAnalytics = {
   absenteeismRate: 3
 };
 
-export const mockCandidates = [
+export const seedCandidates = [
   {
     id: "c1",
     name: "Ana Costa",
@@ -66,7 +66,7 @@ export const mockCandidates = [
   }
 ];
 
-export const mockVacancies = [
+export const seedVacancies = [
   {
     id: "v1",
     title: "Desenvolvedor React Senior",
@@ -76,7 +76,7 @@ export const mockVacancies = [
   }
 ];
 
-export const mockClimateReport = {
+export const seedClimateReport = {
   globalENPS: 70,
   aggregates: [
     { departmentId: "DEP_TECH", averageENPS: 72, isMasked: false },
@@ -85,14 +85,14 @@ export const mockClimateReport = {
   ]
 };
 
-export const mockPayrollAudit = {
+export const seedPayrollAudit = {
   inconsistencies: [
     { employeeId: "1", issue: "Férias fora do período permitido" },
     { employeeId: "3", issue: "Horas extras não registradas" }
   ]
 };
 
-export const mockVacations = [
+export const seedVacations = [
   {
     employeeId: "1",
     startDate: "2024-07-01",
@@ -102,11 +102,11 @@ export const mockVacations = [
   }
 ];
 
-export const mockVacationLimit = {
+export const seedVacationLimit = {
   limitDate: "2025-12-31"
 };
 
-export const mockPerformanceReviews = {
+export const seedPerformanceReviews = {
   consolidated: {
     TECH: 4.4,
     CULTURE: 4.7

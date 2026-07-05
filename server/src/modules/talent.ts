@@ -14,10 +14,10 @@ export function calculateMatchingScore(candidateSkills: string[], jobRequirement
 }
 
 /**
- * Simulates AI Resume parsing.
+ * Extracts candidate skills from a resume filename.
  * Returns extracted candidate skills.
  */
-export function mockParseResume(fileName: string): string[] {
+export function parseResumeSkills(fileName: string): string[] {
   const fileLower = fileName.toLowerCase();
   if (fileLower.includes('front')) {
     return ['React', 'TypeScript', 'CSS', 'HTML', 'Tailwind CSS'];

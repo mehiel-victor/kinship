@@ -8,19 +8,19 @@ export type AuthUser = {
   departmentId: string;
 };
 
-type DemoCredential = AuthUser & {
+type WorkspaceCredential = AuthUser & {
   password: string;
   label: string;
   access: string;
 };
 
-const AUTH_STORAGE_KEY = "kinship.demo.auth";
+const AUTH_STORAGE_KEY = "kinship.auth.session";
 
-export const DEMO_CREDENTIALS: DemoCredential[] = [
+export const WORKSPACE_CREDENTIALS: WorkspaceCredential[] = [
   {
     id: "1",
     name: "João Silva",
-    email: "joao.silva@kinship.demo",
+    email: "joao.silva@orbitatech.com",
     password: "Kinship@2026",
     role: "EMPLOYEE",
     departmentId: "DEP_TECH",
@@ -30,7 +30,7 @@ export const DEMO_CREDENTIALS: DemoCredential[] = [
   {
     id: "3",
     name: "Maria Santos",
-    email: "maria.santos@kinship.demo",
+    email: "maria.santos@orbitatech.com",
     password: "Kinship@2026",
     role: "MANAGER",
     departmentId: "DEP_TECH",
@@ -40,7 +40,7 @@ export const DEMO_CREDENTIALS: DemoCredential[] = [
   {
     id: "8",
     name: "Carla Pereira",
-    email: "carla.pereira@kinship.demo",
+    email: "carla.pereira@orbitatech.com",
     password: "Kinship@2026",
     role: "HR",
     departmentId: "DEP_HR",
@@ -50,7 +50,7 @@ export const DEMO_CREDENTIALS: DemoCredential[] = [
   {
     id: "1",
     name: "Administrador Geral",
-    email: "admin@kinship.demo",
+    email: "admin@orbitatech.com",
     password: "Kinship@2026",
     role: "ADMIN",
     departmentId: "DEP_TECH",
@@ -60,14 +60,14 @@ export const DEMO_CREDENTIALS: DemoCredential[] = [
 ];
 
 export const FALLBACK_AUTH_USER: AuthUser = {
-  id: DEMO_CREDENTIALS[0].id,
-  name: DEMO_CREDENTIALS[0].name,
-  email: DEMO_CREDENTIALS[0].email,
-  role: DEMO_CREDENTIALS[0].role,
-  departmentId: DEMO_CREDENTIALS[0].departmentId,
+  id: WORKSPACE_CREDENTIALS[0].id,
+  name: WORKSPACE_CREDENTIALS[0].name,
+  email: WORKSPACE_CREDENTIALS[0].email,
+  role: WORKSPACE_CREDENTIALS[0].role,
+  departmentId: WORKSPACE_CREDENTIALS[0].departmentId,
 };
 
-function toAuthUser(credential: DemoCredential): AuthUser {
+function toAuthUser(credential: WorkspaceCredential): AuthUser {
   return {
     id: credential.id,
     name: credential.name,
@@ -82,7 +82,7 @@ function normalizeEmail(email: string) {
 }
 
 export function authenticateWithEmail(email: string, password: string) {
-  const credential = DEMO_CREDENTIALS.find(
+  const credential = WORKSPACE_CREDENTIALS.find(
     (item) => normalizeEmail(item.email) === normalizeEmail(email) && item.password === password,
   );
 
@@ -101,7 +101,7 @@ export function getStoredAuthUser() {
 
   try {
     const parsed = JSON.parse(rawSession) as Partial<AuthUser>;
-    const credential = DEMO_CREDENTIALS.find(
+    const credential = WORKSPACE_CREDENTIALS.find(
       (item) => normalizeEmail(item.email) === normalizeEmail(String(parsed.email || "")),
     );
 
