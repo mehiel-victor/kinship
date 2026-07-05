@@ -622,7 +622,7 @@ const App: React.FC = () => {
 
     const user = authenticateWithEmail(loginForm.email, loginForm.password);
     if (!user) {
-      setLoginError("Email ou senha inválidos para a demo.");
+      setLoginError("Email ou senha inválidos.");
       return;
     }
 
@@ -643,98 +643,166 @@ const App: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white font-sans">
-        <main className="min-h-screen grid lg:grid-cols-[minmax(0,0.96fr)_minmax(27rem,0.74fr)]">
-          <section className="relative overflow-hidden px-6 py-8 sm:px-10 lg:px-14 lg:py-12 flex flex-col justify-between">
-            <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_18%_20%,rgba(99,102,241,0.34),transparent_32%),radial-gradient(circle_at_78%_8%,rgba(20,184,166,0.18),transparent_30%),linear-gradient(135deg,rgba(15,23,42,1),rgba(2,6,23,1))]" />
-            <div className="relative">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/kinship_logo.png"
-                  alt="Kinship"
-                  className="h-12 w-12 rounded-2xl object-cover object-top border border-white/10 shadow-2xl"
-                />
-                <div>
-                  <span className="block font-display text-2xl font-extrabold tracking-tight">Kinship</span>
-                  <span className="text-sm text-slate-300">People & Culture Platform</span>
+      <div className="min-h-screen bg-[#f5f7fb] font-sans text-slate-950">
+        <main className="min-h-screen grid lg:grid-cols-[minmax(0,1.05fr)_minmax(28rem,0.72fr)]">
+          <section className="relative order-2 overflow-hidden bg-[#09111f] px-6 py-8 text-white sm:px-10 lg:order-1 lg:px-14 lg:py-12">
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(14,22,39,0.98),rgba(6,11,20,0.96)),radial-gradient(circle_at_78%_18%,rgba(20,184,166,0.28),transparent_30%),radial-gradient(circle_at_22%_4%,rgba(99,102,241,0.22),transparent_34%)]" />
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
+
+            <div className="relative flex min-h-full flex-col">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/kinship_logo.png"
+                    alt="Kinship"
+                    className="h-11 w-11 rounded-xl border border-white/10 object-cover object-top shadow-2xl"
+                  />
+                  <div>
+                    <span className="block font-display text-xl font-extrabold tracking-tight">Kinship</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/80">People OS</span>
+                  </div>
                 </div>
+                <span className="hidden items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-xs font-bold text-emerald-100 sm:inline-flex">
+                  <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.9)]" />
+                  Plataforma online
+                </span>
               </div>
 
-              <div className="mt-24 max-w-3xl">
-                <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-300/25 bg-indigo-300/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-indigo-100">
+              <div className="mt-16 max-w-3xl lg:mt-20">
+                <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-cyan-100">
                   <ShieldCheck className="h-4 w-4" />
-                  Acesso RBAC por email
+                  Acesso seguro ao workspace
                 </p>
-                <h1 className="font-display text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
-                  People Ops com login real de demo.
+                <h1 className="max-w-4xl font-display text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
+                  Decisões de People Ops em uma única central.
                 </h1>
                 <p className="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-                  Cada conta abre uma visão diferente do produto: colaborador, gestor, RH ou administrador. A sessão fica salva no navegador e os fluxos seguem com dados mockados seguros.
+                  Entre no ambiente Kinship para acompanhar clima, talent acquisition, feedback, compliance de DP e trilhas de onboarding com permissões por perfil.
                 </p>
               </div>
-            </div>
 
-            <div className="relative mt-12 grid gap-3 sm:grid-cols-3">
-              {[
-                { value: "4", label: "contas demo" },
-                { value: "7", label: "módulos protegidos" },
-                { value: "0", label: "backend obrigatório" },
-              ].map((item) => (
-                <div key={item.label} className="border border-white/10 bg-white/[0.04] p-4 backdrop-blur">
-                  <strong className="block font-display text-3xl font-black">{item.value}</strong>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.label}</span>
+              <div className="mt-10 grid gap-5 xl:grid-cols-[minmax(0,1fr)_18rem]">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-2xl shadow-black/30 backdrop-blur">
+                  <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Command center</span>
+                      <h2 className="mt-1 font-display text-lg font-extrabold text-white">Operação hoje</h2>
+                    </div>
+                    <ActivityIcon className="h-5 w-5 text-cyan-200" />
+                  </div>
+                  <div className="grid gap-4 p-5 sm:grid-cols-3">
+                    {[
+                      { label: "Headcount ativo", value: "128", tone: "text-cyan-200" },
+                      { label: "eNPS global", value: "74", tone: "text-emerald-200" },
+                      { label: "Riscos abertos", value: "06", tone: "text-amber-200" },
+                    ].map((metric) => (
+                      <div key={metric.label} className="rounded-xl border border-white/10 bg-slate-950/35 p-4">
+                        <span className="block text-[10px] font-black uppercase tracking-wider text-slate-500">{metric.label}</span>
+                        <strong className={`mt-2 block font-display text-3xl font-black ${metric.tone}`}>{metric.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="grid gap-3 px-5 pb-5">
+                    {[
+                      { title: "Onboarding executivo", detail: "3 documentos aguardando assinatura", icon: FileCheck },
+                      { title: "Pulso de clima", detail: "Tecnologia caiu 8 pts em 14 dias", icon: TrendingUp },
+                      { title: "Folha e férias", detail: "1 bloqueio de compliance detectado", icon: Calendar },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.title} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-cyan-100">
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-bold text-slate-100">{item.title}</span>
+                            <span className="block truncate text-xs text-slate-400">{item.detail}</span>
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-slate-500" />
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
+
+                <div className="grid gap-4">
+                  {[
+                    { label: "Perfis com RBAC", value: "4", icon: UserRoundCheck },
+                    { label: "Módulos ativos", value: "7", icon: Route },
+                    { label: "Dados persistidos", value: "Local", icon: Database },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 backdrop-blur">
+                        <Icon className="mb-4 h-5 w-5 text-cyan-200" />
+                        <strong className="block font-display text-3xl font-black">{item.value}</strong>
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{item.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </section>
 
-          <section className="flex min-h-screen items-center justify-center bg-white px-6 py-10 text-slate-950 dark:bg-slate-900 dark:text-white sm:px-10">
-            <div className="w-full max-w-md">
-              <div className="mb-8">
-                <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
-                  <UserRoundCheck className="h-5 w-5" />
+          <section className="order-1 flex min-h-screen items-center justify-center bg-[#f5f7fb] px-6 py-10 sm:px-10 lg:order-2">
+            <div className="w-full max-w-[29rem]">
+              <div className="mb-7">
+                <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 shadow-sm">
+                  <Building2 className="h-4 w-4 text-cyan-600" />
+                  Workspace Kinship
                 </span>
-                <h2 className="font-display text-3xl font-extrabold tracking-tight">Entrar no Kinship</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                  Use uma conta demo por email para acessar as permissões do perfil.
+                <h2 className="font-display text-4xl font-black tracking-tight text-slate-950">Acesse sua operação.</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-500">
+                  Use email e senha para entrar com as permissões do seu papel na plataforma.
                 </p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-4">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Email</span>
-                  <span className="relative block">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="email"
-                      value={loginForm.email}
-                      onChange={(event) => setLoginForm(prev => ({ ...prev, email: event.target.value }))}
-                      autoComplete="email"
-                      required
-                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-indigo-950"
-                      placeholder="email@kinship.demo"
-                    />
-                  </span>
-                </label>
+              <form onSubmit={handleLogin} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/70">
+                <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div>
+                    <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Sessão protegida</span>
+                    <span className="mt-1 block text-sm font-bold text-slate-700">Acesso por perfil corporativo</span>
+                  </div>
+                  <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                </div>
 
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Senha</span>
-                  <span className="relative block">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="password"
-                      value={loginForm.password}
-                      onChange={(event) => setLoginForm(prev => ({ ...prev, password: event.target.value }))}
-                      autoComplete="current-password"
-                      required
-                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-indigo-950"
-                      placeholder="Senha da conta demo"
-                    />
-                  </span>
-                </label>
+                <div className="space-y-4">
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Email corporativo</span>
+                    <span className="relative block">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="email"
+                        value={loginForm.email}
+                        onChange={(event) => setLoginForm(prev => ({ ...prev, email: event.target.value }))}
+                        autoComplete="email"
+                        required
+                        className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                        placeholder="nome@empresa.com"
+                      />
+                    </span>
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Senha</span>
+                    <span className="relative block">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="password"
+                        value={loginForm.password}
+                        onChange={(event) => setLoginForm(prev => ({ ...prev, password: event.target.value }))}
+                        autoComplete="current-password"
+                        required
+                        className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                        placeholder="Digite sua senha"
+                      />
+                    </span>
+                  </label>
+                </div>
 
                 {loginError && (
-                  <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
+                  <div className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     {loginError}
                   </div>
@@ -742,17 +810,20 @@ const App: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-950"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-slate-950/20 transition hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-cyan-100"
                 >
-                  Entrar
+                  Entrar no workspace
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
 
-              <div className="mt-8">
+              <div className="mt-7">
                 <div className="mb-3 flex items-center justify-between gap-4">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Contas demo</span>
-                  <span className="text-[11px] font-semibold text-slate-400">senha no README</span>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-400">Acessos de avaliação</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                    senha preenchida
+                  </span>
                 </div>
                 <div className="grid gap-2">
                   {DEMO_CREDENTIALS.map((credential) => (
@@ -760,15 +831,18 @@ const App: React.FC = () => {
                       key={credential.email}
                       type="button"
                       onClick={() => handleCredentialFill(credential.email, credential.password)}
-                      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-indigo-300 hover:bg-indigo-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/30"
+                      className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50"
                     >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition group-hover:bg-cyan-100 group-hover:text-cyan-700">
+                        <UserRoundCheck className="h-4 w-4" />
+                      </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-bold text-slate-900 dark:text-white">{credential.label}</span>
-                        <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{credential.email}</span>
+                        <span className="block text-sm font-extrabold text-slate-900">{credential.label}</span>
+                        <span className="block truncate text-xs font-medium text-slate-500">{credential.email}</span>
                         <span className="mt-1 block text-[11px] font-medium text-slate-400">{credential.access}</span>
                       </span>
-                      <span className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 transition group-hover:border-indigo-300 group-hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400">
-                        usar
+                      <span className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 transition group-hover:border-cyan-300 group-hover:text-cyan-700">
+                        usar perfil
                       </span>
                     </button>
                   ))}
