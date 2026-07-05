@@ -23,7 +23,8 @@ import {
   Lock,
   ArrowRight,
   LogOut,
-  UserRoundCheck
+  UserRoundCheck,
+  Activity as ActivityIcon
 } from "lucide-react";
 import {
   DEMO_CREDENTIALS,
@@ -151,6 +152,24 @@ type Analytics = {
   absenteeismRate: number;
 };
 
+type DemoActivity = {
+  id: string;
+  type: "talent" | "performance" | "climate" | "payroll" | "onboarding";
+  actorName: string;
+  actorRole: string;
+  message: string;
+  target?: string;
+  createdAt: string;
+};
+
+const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
+  talent: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900/40",
+  performance: "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/40",
+  climate: "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/40",
+  payroll: "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/40",
+  onboarding: "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-900/40",
+};
+
 const asData = <T,>(value: unknown) => value as T;
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -214,6 +233,7 @@ const App: React.FC = () => {
 
   // Global Analytics
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [activityLog, setActivityLog] = useState<DemoActivity[]>([]);
 
   // Loading triggers
   const [loading, setLoading] = useState(true);
@@ -221,6 +241,11 @@ const App: React.FC = () => {
 
   // Error handling
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const actorPayload = () => ({
+    actorName: currentUser.name,
+    actorRole: currentUser.role,
+  });
 
   // Apply dark mode class
   useEffect(() => {
@@ -252,6 +277,9 @@ const App: React.FC = () => {
         // Fetch Analytics
         const analyticsData = await fetchAPI("/analytics");
         setAnalytics(asData<Analytics>(analyticsData));
+
+        const activityData = await fetchAPI("/activity");
+        setActivityLog(asData<DemoActivity[]>(activityData));
 
         // Fetch Talent (Candidates and Vacancies)
         const candidatesData = await fetchAPI("/talent/candidates");
@@ -327,7 +355,7 @@ const App: React.FC = () => {
     try {
       await fetchAPI(`/employees/${selectedEmployee.id}/onboarding/check`, {
         method: "POST",
-        body: JSON.stringify({ taskId, completed: !currentStatus })
+        body: JSON.stringify({ taskId, completed: !currentStatus, ...actorPayload() })
       });
       // Refresh onboarding status
       const data = await fetchAPI(`/employees/${selectedEmployee.id}/onboarding`);
@@ -347,7 +375,7 @@ const App: React.FC = () => {
     try {
       const res = await fetchAPI(`/employees/${selectedEmployee.id}/onboarding/upload`, {
         method: "POST",
-        body: JSON.stringify({ fileName: uploadingDocName })
+        body: JSON.stringify({ fileName: uploadingDocName, ...actorPayload() })
       });
       
       setUploadingDocName("");
@@ -374,7 +402,8 @@ const App: React.FC = () => {
           title: newVacancy.title,
           description: newVacancy.description,
           departmentId: newVacancy.departmentId,
-          requirements: reqsArray
+          requirements: reqsArray,
+          ...actorPayload()
         })
       });
       setNewVacancy({ title: "", description: "", departmentId: "DEP_TECH", requirements: "" });
@@ -396,7 +425,8 @@ const App: React.FC = () => {
           evaluatorId: currentUser.id,
           relationship: currentUser.id === reviewForm.targetId ? "SELF" : currentUser.role === "MANAGER" ? "MANAGER" : "PEER",
           cycleId: "CYCLE_2026_Q1",
-          scores: [{ competencyId: reviewForm.competencyId, rating: Number(reviewForm.rating), comment: reviewForm.comment }]
+          scores: [{ competencyId: reviewForm.competencyId, rating: Number(reviewForm.rating), comment: reviewForm.comment }],
+          ...actorPayload()
         })
       });
       setReviewForm(prev => ({ ...prev, comment: "" }));
@@ -417,7 +447,8 @@ const App: React.FC = () => {
           employeeId: currentUser.id,
           departmentId: currentUser.departmentId,
           enpsScore: Number(climateForm.enpsScore),
-          sentimentRating: Number(climateForm.sentimentRating)
+          sentimentRating: Number(climateForm.sentimentRating),
+          ...actorPayload()
         })
       });
       setSurveySubmitted(true);
@@ -437,7 +468,8 @@ const App: React.FC = () => {
           employeeId: currentUser.id,
           startDate: vacationForm.startDate,
           endDate: vacationForm.endDate,
-          reason: vacationForm.reason
+          reason: vacationForm.reason,
+          ...actorPayload()
         })
       });
       setVacationForm({ startDate: "", endDate: "", reason: "" });
@@ -888,6 +920,52 @@ const App: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
+                      <div>
+                        <h3 className="text-lg font-display font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          <ActivityIcon className="text-indigo-500 h-5 w-5" /> Atividade entre contas
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          Ações persistidas no navegador: saia, entre com outro email e veja o mesmo histórico.
+                        </p>
+                      </div>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-slate-400">
+                        Store local persistido
+                      </span>
+                    </div>
+
+                    {activityLog.length > 0 ? (
+                      <div className="grid gap-3">
+                        {activityLog.slice(0, 6).map((activity) => (
+                          <div key={activity.id} className="grid gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/40 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                            <span className={`inline-flex w-fit rounded-lg border px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${ACTIVITY_TONE_BY_TYPE[activity.type]}`}>
+                              {activity.type}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                {activity.actorName} <span className="font-normal text-slate-500 dark:text-slate-400">{activity.message}</span>
+                              </p>
+                              {activity.target && (
+                                <p className="mt-1 truncate text-xs text-slate-400">{activity.target}</p>
+                              )}
+                            </div>
+                            <div className="text-left sm:text-right">
+                              <span className="block text-[10px] font-black uppercase tracking-wider text-slate-400">{activity.actorRole}</span>
+                              <span className="text-[10px] text-slate-400">
+                                {new Date(activity.createdAt).toLocaleString('pt-BR')}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed border-slate-200 p-5 text-sm text-slate-400 dark:border-slate-800">
+                        Nenhuma ação compartilhada registrada ainda.
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

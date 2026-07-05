@@ -29,9 +29,29 @@ type DemoTask = {
   phase: string;
   completed: boolean;
 };
+type DemoActivity = {
+  id: string;
+  type: "talent" | "performance" | "climate" | "payroll" | "onboarding";
+  actorName: string;
+  actorRole: string;
+  message: string;
+  target?: string;
+  createdAt: string;
+};
+type DemoStore = {
+  version: number;
+  employees: DemoEmployee[];
+  vacancies: DemoVacancy[];
+  reviews: DemoReview[];
+  vacations: DemoVacation[];
+  climateReport: typeof mockClimateReport;
+  onboardingByEmployeeId: Record<string, { tasks: DemoTask[]; documents: DemoDocument[] }>;
+  activityLog: DemoActivity[];
+};
 type LegacyAPIResponse = string &
   unknown[] & {
     [key: string]: unknown;
+    activityLog: unknown[];
     consolidated: Record<string, number>;
     document: unknown;
     documents: unknown[];
@@ -42,7 +62,11 @@ type LegacyAPIResponse = string &
     tasks: unknown[];
   };
 
-const demoEmployees: DemoEmployee[] = [
+const STORE_KEY = "kinship.demo.store.v2";
+const STORE_VERSION = 2;
+const MAX_ACTIVITY_ITEMS = 32;
+
+const seedEmployees: DemoEmployee[] = [
   ...mockEmployees,
   {
     id: "12",
@@ -57,57 +81,123 @@ const demoEmployees: DemoEmployee[] = [
   },
 ];
 
-const demoVacancies: DemoVacancy[] = [...mockVacancies];
-const demoReviews: DemoReview[] = [...mockPerformanceReviews.reviews];
-const demoVacations: DemoVacation[] = mockVacations.map((vacation, index) => ({
-  ...vacation,
-  id: `VAC_${index + 1}`,
-}));
-
-const onboardingState = new Map<string, { tasks: DemoTask[]; documents: DemoDocument[] }>([
-  [
-    "12",
-    {
-      tasks: [
-        {
-          id: "task-30",
-          title: "Configurar acessos de produto e design system",
-          dueDate: "2026-07-10",
-          phase: "30 dias",
-          completed: true,
-        },
-        {
-          id: "task-60",
-          title: "Concluir trilha LGPD e segurança de dados",
-          dueDate: "2026-08-14",
-          phase: "60 dias",
-          completed: false,
-        },
-        {
-          id: "task-90",
-          title: "Apresentar primeiro diagnóstico de experiência",
-          dueDate: "2026-09-14",
-          phase: "90 dias",
-          completed: false,
-        },
-      ],
-      documents: [
-        {
-          id: "doc-1",
-          fileName: "Contrato_Admissao_Rafael.pdf",
-          signedAt: "2026-06-18T14:30:00.000Z",
-          sha256Hash: "9f86d081884c7d659a2feaa0c55ad015",
-          auditSignature: "KINSHIP-AUDIT-20260618-143000-RAFAEL",
-        },
-      ],
-    },
-  ],
-]);
+const seedOnboarding: DemoStore["onboardingByEmployeeId"] = {
+  "12": {
+    tasks: [
+      {
+        id: "task-30",
+        title: "Configurar acessos de produto e design system",
+        dueDate: "2026-07-10",
+        phase: "30 dias",
+        completed: true,
+      },
+      {
+        id: "task-60",
+        title: "Concluir trilha LGPD e segurança de dados",
+        dueDate: "2026-08-14",
+        phase: "60 dias",
+        completed: false,
+      },
+      {
+        id: "task-90",
+        title: "Apresentar primeiro diagnóstico de experiência",
+        dueDate: "2026-09-14",
+        phase: "90 dias",
+        completed: false,
+      },
+    ],
+    documents: [
+      {
+        id: "doc-1",
+        fileName: "Contrato_Admissao_Rafael.pdf",
+        signedAt: "2026-06-18T14:30:00.000Z",
+        sha256Hash: "9f86d081884c7d659a2feaa0c55ad015",
+        auditSignature: "KINSHIP-AUDIT-20260618-143000-RAFAEL",
+      },
+    ],
+  },
+};
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 function respond(value: unknown): LegacyAPIResponse {
   return value as LegacyAPIResponse;
+}
+
+function createInitialStore(): DemoStore {
+  return {
+    version: STORE_VERSION,
+    employees: clone(seedEmployees),
+    vacancies: clone(mockVacancies),
+    reviews: clone(mockPerformanceReviews.reviews),
+    vacations: mockVacations.map((vacation, index) => ({
+      ...clone(vacation),
+      id: `VAC_${index + 1}`,
+    })),
+    climateReport: clone(mockClimateReport),
+    onboardingByEmployeeId: clone(seedOnboarding),
+    activityLog: [
+      {
+        id: "ACT_SEED_1",
+        type: "onboarding",
+        actorName: "Sistema Kinship",
+        actorRole: "SYSTEM",
+        message: "Demo inicializada com contas conectadas por um store local persistido.",
+        target: "LocalStorage",
+        createdAt: "2026-07-05T00:00:00.000Z",
+      },
+    ],
+  };
+}
+
+function canUseStorage() {
+  return typeof window !== "undefined" && Boolean(window.localStorage);
+}
+
+function saveStore(store: DemoStore) {
+  if (!canUseStorage()) return;
+  window.localStorage.setItem(STORE_KEY, JSON.stringify(store));
+}
+
+function isValidStore(value: Partial<DemoStore>) {
+  return (
+    value.version === STORE_VERSION &&
+    Array.isArray(value.employees) &&
+    Array.isArray(value.vacancies) &&
+    Array.isArray(value.reviews) &&
+    Array.isArray(value.vacations) &&
+    Array.isArray(value.activityLog) &&
+    Boolean(value.onboardingByEmployeeId)
+  );
+}
+
+function getStore() {
+  if (!canUseStorage()) {
+    return createInitialStore();
+  }
+
+  const rawStore = window.localStorage.getItem(STORE_KEY);
+  if (rawStore) {
+    try {
+      const parsed = JSON.parse(rawStore) as Partial<DemoStore>;
+      if (isValidStore(parsed)) {
+        return parsed as DemoStore;
+      }
+    } catch {
+      window.localStorage.removeItem(STORE_KEY);
+    }
+  }
+
+  const store = createInitialStore();
+  saveStore(store);
+  return store;
+}
+
+function persistMutation<T>(mutator: (store: DemoStore) => T) {
+  const store = getStore();
+  const result = mutator(store);
+  saveStore(store);
+  return result;
 }
 
 function getMethod(options?: RequestInit) {
@@ -130,9 +220,35 @@ function readBody(options?: RequestInit): Record<string, unknown> {
   }
 }
 
-function ensureOnboarding(employeeId: string) {
-  if (!onboardingState.has(employeeId)) {
-    onboardingState.set(employeeId, {
+function getActor(body: Record<string, unknown>) {
+  return {
+    actorName: String(body.actorName || "Conta demo"),
+    actorRole: String(body.actorRole || "DEMO"),
+  };
+}
+
+function addActivity(
+  store: DemoStore,
+  body: Record<string, unknown>,
+  type: DemoActivity["type"],
+  message: string,
+  target?: string,
+) {
+  const actor = getActor(body);
+  store.activityLog.unshift({
+    id: crypto.randomUUID(),
+    type,
+    ...actor,
+    message,
+    target,
+    createdAt: new Date().toISOString(),
+  });
+  store.activityLog = store.activityLog.slice(0, MAX_ACTIVITY_ITEMS);
+}
+
+function ensureOnboarding(store: DemoStore, employeeId: string) {
+  if (!store.onboardingByEmployeeId[employeeId]) {
+    store.onboardingByEmployeeId[employeeId] = {
       tasks: [
         {
           id: `${employeeId}-welcome`,
@@ -150,15 +266,15 @@ function ensureOnboarding(employeeId: string) {
         },
       ],
       documents: [],
-    });
+    };
   }
 
-  return onboardingState.get(employeeId)!;
+  return store.onboardingByEmployeeId[employeeId];
 }
 
-function updateEmployeeStatus(employeeId: string) {
-  const onboarding = ensureOnboarding(employeeId);
-  const employee = demoEmployees.find((item) => item.id === employeeId);
+function updateEmployeeStatus(store: DemoStore, employeeId: string) {
+  const onboarding = ensureOnboarding(store, employeeId);
+  const employee = store.employees.find((item) => item.id === employeeId);
   if (!employee) return "ACTIVE";
 
   const completed = onboarding.tasks.every((task) => task.completed);
@@ -167,8 +283,8 @@ function updateEmployeeStatus(employeeId: string) {
   return employee.status;
 }
 
-function getConsolidatedScores(employeeId: string) {
-  const reviews = demoReviews.filter((review) => review.employeeId === employeeId);
+function getConsolidatedScores(store: DemoStore, employeeId: string) {
+  const reviews = store.reviews.filter((review) => review.employeeId === employeeId);
   const scores = new Map<string, { total: number; count: number }>();
 
   reviews.forEach((review) => {
@@ -193,10 +309,10 @@ function getConsolidatedScores(employeeId: string) {
   );
 }
 
-function createReview(body: Record<string, unknown>) {
+function createReview(store: DemoStore, body: Record<string, unknown>) {
   const scores = Array.isArray(body.scores) ? (body.scores as DemoScore[]) : [];
   const review: DemoReview = {
-    id: `REV_${demoReviews.length + 1}`,
+    id: `REV_${store.reviews.length + 1}`,
     employeeId: String(body.employeeId || "1"),
     evaluatorId: String(body.evaluatorId || "1"),
     relationship: String(body.relationship || "PEER"),
@@ -205,40 +321,66 @@ function createReview(body: Record<string, unknown>) {
     submittedAt: new Date().toISOString(),
   };
 
-  demoReviews.unshift(review);
+  store.reviews.unshift(review);
+  const target = store.employees.find((employee) => employee.id === review.employeeId)?.name || "colaborador";
+  addActivity(store, body, "performance", `enviou feedback 360 para ${target}`, target);
   return review;
 }
 
-function createVacancy(body: Record<string, unknown>) {
+function createVacancy(store: DemoStore, body: Record<string, unknown>) {
   const requirements = Array.isArray(body.requirements) ? (body.requirements as string[]) : [];
   const vacancy: DemoVacancy = {
-    id: `v${demoVacancies.length + 1}`,
+    id: `v${store.vacancies.length + 1}`,
     title: String(body.title || "Nova vaga"),
     description: String(body.description || "Vaga criada no modo demo."),
     departmentId: String(body.departmentId || "DEP_TECH"),
     requirements,
   };
 
-  demoVacancies.unshift(vacancy);
+  store.vacancies.unshift(vacancy);
+  addActivity(store, body, "talent", `criou a vaga ${vacancy.title}`, vacancy.title);
   return vacancy;
 }
 
-function createVacation(body: Record<string, unknown>) {
+function createVacation(store: DemoStore, body: Record<string, unknown>) {
+  const employeeId = String(body.employeeId || "1");
   const vacation: DemoVacation = {
-    id: `VAC_${demoVacations.length + 1}`,
-    employeeId: String(body.employeeId || "1"),
+    id: `VAC_${store.vacations.length + 1}`,
+    employeeId,
     startDate: String(body.startDate || "2026-08-01"),
     endDate: String(body.endDate || "2026-08-15"),
     reason: String(body.reason || "Solicitação criada no modo demo"),
     status: "APPROVED",
   };
 
-  demoVacations.unshift(vacation);
+  store.vacations.unshift(vacation);
+  const employee = store.employees.find((item) => item.id === employeeId)?.name || "colaborador";
+  addActivity(store, body, "payroll", `solicitou férias para ${employee}`, `${vacation.startDate} - ${vacation.endDate}`);
   return vacation;
 }
 
-function createCNABPreview() {
-  const activeEmployees = demoEmployees.filter((employee) => employee.status === "ACTIVE");
+function registerClimateResponse(store: DemoStore, body: Record<string, unknown>) {
+  const departmentId = String(body.departmentId || "DEP_TECH");
+  const enpsScore = Number(body.enpsScore || 0);
+  const scaledScore = Math.max(0, Math.min(100, enpsScore * 10));
+  const aggregate = store.climateReport.aggregates.find((item) => item.departmentId === departmentId);
+
+  if (aggregate && !aggregate.isMasked) {
+    aggregate.averageENPS = Math.round(((aggregate.averageENPS || scaledScore) + scaledScore) / 2);
+  }
+
+  store.climateReport.globalENPS = Math.round((store.climateReport.globalENPS + scaledScore) / 2);
+  addActivity(store, body, "climate", "respondeu a pesquisa de clima anonimamente", departmentId);
+
+  return {
+    id: crypto.randomUUID(),
+    anonymous: true,
+    submittedAt: new Date().toISOString(),
+  };
+}
+
+function createCNABPreview(store: DemoStore) {
+  const activeEmployees = store.employees.filter((employee) => employee.status === "ACTIVE");
   const detailLines = activeEmployees.map((employee, index) => {
     const sequence = String(index + 1).padStart(6, "0");
     const amount = String(820000 + index * 175000).padStart(13, "0");
@@ -257,16 +399,17 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
   const url = parseEndpoint(endpoint);
   const path = url.pathname;
   const body = readBody(options);
+  const store = getStore();
 
   if (method === "GET" && path === "/employees") {
     const query = (url.searchParams.get("query") || "").trim().toLowerCase();
     const employees = query
-      ? demoEmployees.filter((employee) =>
+      ? store.employees.filter((employee) =>
           [employee.name, employee.email, employee.job].some((value) =>
             value.toLowerCase().includes(query),
           ),
         )
-      : demoEmployees;
+      : store.employees;
 
     return respond(clone(employees));
   }
@@ -275,48 +418,71 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
   if (onboardingMatch) {
     const employeeId = onboardingMatch[1];
     const action = onboardingMatch[2];
-    const onboarding = ensureOnboarding(employeeId);
 
     if (method === "POST" && action === "check") {
-      const taskId = String(body.taskId || "");
-      const completed = Boolean(body.completed);
-      onboarding.tasks = onboarding.tasks.map((task) =>
-        task.id === taskId ? { ...task, completed } : task,
-      );
+      const result = persistMutation((currentStore) => {
+        const onboarding = ensureOnboarding(currentStore, employeeId);
+        const taskId = String(body.taskId || "");
+        const completed = Boolean(body.completed);
+        onboarding.tasks = onboarding.tasks.map((task) =>
+          task.id === taskId ? { ...task, completed } : task,
+        );
+        const task = onboarding.tasks.find((item) => item.id === taskId);
+        addActivity(
+          currentStore,
+          body,
+          "onboarding",
+          `${completed ? "concluiu" : "reabriu"} uma etapa de onboarding`,
+          task?.title,
+        );
 
-      return respond(clone({ tasks: onboarding.tasks, employeeStatus: updateEmployeeStatus(employeeId) }));
+        return { tasks: onboarding.tasks, employeeStatus: updateEmployeeStatus(currentStore, employeeId) };
+      });
+
+      return respond(clone(result));
     }
 
     if (method === "POST" && action === "upload") {
-      const fileName = String(body.fileName || "Documento_Assinado.pdf");
-      const document: DemoDocument = {
-        id: `doc-${onboarding.documents.length + 1}`,
-        fileName,
-        signedAt: new Date().toISOString(),
-        sha256Hash: crypto.randomUUID().replace(/-/g, "").slice(0, 32),
-        auditSignature: `KINSHIP-AUDIT-${crypto.randomUUID().replace(/-/g, "").toUpperCase()}`,
-      };
-      onboarding.documents.unshift(document);
+      const result = persistMutation((currentStore) => {
+        const onboarding = ensureOnboarding(currentStore, employeeId);
+        const fileName = String(body.fileName || "Documento_Assinado.pdf");
+        const document: DemoDocument = {
+          id: `doc-${onboarding.documents.length + 1}`,
+          fileName,
+          signedAt: new Date().toISOString(),
+          sha256Hash: crypto.randomUUID().replace(/-/g, "").slice(0, 32),
+          auditSignature: `KINSHIP-AUDIT-${crypto.randomUUID().replace(/-/g, "").toUpperCase()}`,
+        };
+        onboarding.documents.unshift(document);
+        addActivity(currentStore, body, "onboarding", `assinou o documento ${fileName}`, fileName);
 
-      return respond(clone({
-        document,
-        employeeStatus: updateEmployeeStatus(employeeId),
-      }));
+        return {
+          document,
+          employeeStatus: updateEmployeeStatus(currentStore, employeeId),
+        };
+      });
+
+      return respond(clone(result));
     }
 
     if (method === "GET" && !action) {
-      return respond(clone(onboarding));
+      return respond(clone(ensureOnboarding(store, employeeId)));
     }
   }
 
   if (method === "GET" && path === "/analytics") {
-    const onboardingCount = demoEmployees.filter((employee) => employee.status === "ONBOARDING").length;
+    const onboardingCount = store.employees.filter((employee) => employee.status === "ONBOARDING").length;
     return respond(clone({
       ...mockAnalytics,
-      headcount: demoEmployees.length,
-      activeCount: demoEmployees.length - onboardingCount,
+      headcount: store.employees.length,
+      activeCount: store.employees.length - onboardingCount,
       onboardingCount,
+      enps: store.climateReport.globalENPS,
     }));
+  }
+
+  if (method === "GET" && path === "/activity") {
+    return respond(clone(store.activityLog));
   }
 
   if (method === "GET" && path === "/talent/candidates") {
@@ -325,41 +491,37 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
 
   if (path === "/talent/vacancies") {
     if (method === "POST") {
-      return respond(clone(createVacancy(body)));
+      return respond(clone(persistMutation((currentStore) => createVacancy(currentStore, body))));
     }
 
-    return respond(clone(demoVacancies));
+    return respond(clone(store.vacancies));
   }
 
   if (method === "GET" && path === "/climate/aggregate") {
-    return respond(clone(mockClimateReport));
+    return respond(clone(store.climateReport));
   }
 
   if (method === "POST" && path === "/climate/respond") {
-    return respond(clone({
-      id: crypto.randomUUID(),
-      anonymous: true,
-      submittedAt: new Date().toISOString(),
-    }));
+    return respond(clone(persistMutation((currentStore) => registerClimateResponse(currentStore, body))));
   }
 
   const reviewMatch = path.match(/^\/performance\/reviews(?:\/([^/]+))?$/);
   if (reviewMatch) {
     if (method === "POST" && !reviewMatch[1]) {
-      return respond(clone(createReview(body)));
+      return respond(clone(persistMutation((currentStore) => createReview(currentStore, body))));
     }
 
     const employeeId = reviewMatch[1];
     if (method === "GET" && employeeId) {
       return respond(clone({
-        reviews: demoReviews.filter((review) => review.employeeId === employeeId),
-        consolidated: getConsolidatedScores(employeeId),
+        reviews: store.reviews.filter((review) => review.employeeId === employeeId),
+        consolidated: getConsolidatedScores(store, employeeId),
       }));
     }
 
     if (method === "GET") {
       return respond(clone({
-        reviews: demoReviews,
+        reviews: store.reviews,
         consolidated: mockPerformanceReviews.consolidated,
       }));
     }
@@ -379,14 +541,14 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
 
   if (path === "/payroll/vacations") {
     if (method === "POST") {
-      return respond(clone(createVacation(body)));
+      return respond(clone(persistMutation((currentStore) => createVacation(currentStore, body))));
     }
 
-    return respond(clone(demoVacations));
+    return respond(clone(store.vacations));
   }
 
   if (method === "GET" && path === "/payroll/cnab") {
-    return respond(createCNABPreview());
+    return respond(createCNABPreview(store));
   }
 
   throw new Error(`Kinship demo endpoint not implemented: ${method} ${path}`);

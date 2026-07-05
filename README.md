@@ -30,6 +30,8 @@ O front-end publicado na Vercel usa autenticação mockada por email/senha para 
 | Recursos Humanos | `carla.pereira@kinship.demo` | `Kinship@2026` | People Ops completo |
 | Administrador | `admin@kinship.demo` | `Kinship@2026` | Visão administrativa geral |
 
+As contas compartilham um store local persistido no navegador. Para testar a interação, entre como gestora, crie uma vaga ou envie um feedback, saia e entre como RH/Admin para ver a ação no painel **Atividade entre contas**. Os dados continuam disponíveis após refresh enquanto o `localStorage` do navegador não for limpo.
+
 ## Como Executar o Projeto
 
 ### Pré-requisitos
