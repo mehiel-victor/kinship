@@ -89,7 +89,7 @@ jobs:
         run: |
           set -euo pipefail
           deploy_output="$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")"
-          deploy_url="$(printf '%s\n' "$deploy_output" | grep -Eo 'https://[^[:space:]]+\\.vercel\\.app[^[:space:]]*' | tail -n 1 || true)"
+          deploy_url="$(printf '%s\n' "$deploy_output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app[^[:space:]]*' | tail -n 1 || true)"
           if [ -z "$deploy_url" ]; then
             printf '%s\n' "$deploy_output"
             exit 1
@@ -151,7 +151,7 @@ jobs:
         run: |
           set -euo pipefail
           deploy_output="$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")"
-          deploy_url="$(printf '%s\n' "$deploy_output" | grep -Eo 'https://[^[:space:]]+\\.vercel\\.app[^[:space:]]*' | tail -n 1 || true)"
+          deploy_url="$(printf '%s\n' "$deploy_output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app[^[:space:]]*' | tail -n 1 || true)"
           if [ -z "$deploy_url" ]; then
             printf '%s\n' "$deploy_output"
             exit 1
