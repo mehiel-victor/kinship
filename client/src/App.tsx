@@ -315,29 +315,6 @@ const URGENCY_LABELS: Record<string, string> = {
   discovery: "Mapear risco antes de escalar",
 };
 
-const TECH_RECRUITER_PROOFS = [
-  {
-    label: "Produto full-stack",
-    detail: "React, TypeScript, Vite, Express e regras de domínio isoladas no backend.",
-    icon: Route,
-  },
-  {
-    label: "Autenticação e RBAC",
-    detail: "Login mockado por email/senha com permissões reais por colaborador, gestor, RH e admin.",
-    icon: ShieldCheck,
-  },
-  {
-    label: "Dados interagindo",
-    detail: "Ações de uma conta aparecem para outras via store persistido e histórico auditável.",
-    icon: Database,
-  },
-  {
-    label: "CI/CD verificável",
-    detail: "GitHub Actions roda lint, build, testes do servidor e deploy na Vercel.",
-    icon: PlayCircle,
-  },
-];
-
 const qualifyDiagnosticLead = (form: DiagnosticLeadForm) => {
   const headcountScore = form.headcount === "80-150" || form.headcount === "150-300" ? 3 : form.headcount === "300+" ? 2 : 1;
   const urgencyScore = form.urgency === "next-30-days" ? 3 : form.urgency === "quarter" ? 2 : 1;
@@ -805,7 +782,6 @@ const App: React.FC = () => {
             </div>
             <nav className="hidden items-center gap-6 text-xs font-black uppercase tracking-wider text-slate-400 md:flex">
               <a href="#wedge" className="transition hover:text-white">Problema</a>
-              <a href="#technical-proof" className="transition hover:text-white">Prova técnica</a>
               <a href="#pilot" className="transition hover:text-white">Piloto</a>
               <a href="#diagnostic-form" className="transition hover:text-white">Diagnóstico</a>
             </nav>
@@ -854,7 +830,7 @@ const App: React.FC = () => {
                   </button>
                 </div>
                 <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
-                  {["Demo autenticada", "Dados persistidos", "Deploy com CI/CD"].map((item) => (
+                  {["Diagnóstico em 48h", "Plano semanal de risco", "Piloto assistido"].map((item) => (
                     <div key={item} className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-300">
                       {item}
                     </div>
@@ -930,39 +906,6 @@ const App: React.FC = () => {
                       <Icon className="h-6 w-6 text-cyan-700" />
                       <h3 className="mt-5 font-display text-xl font-black">{item.title}</h3>
                       <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          <section id="technical-proof" className="bg-slate-950 px-5 py-16 text-white sm:px-8 lg:py-24">
-            <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
-              <div>
-                <span className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">enhancement para recrutadores</span>
-                <h2 className="mt-3 font-display text-4xl font-black tracking-tight sm:text-5xl">Dá para avaliar produto, código e entrega em uma visita.</h2>
-                <p className="mt-5 text-base leading-7 text-slate-300">
-                  A landing agora evidencia sinais que importam para tech recruiters: arquitetura full-stack, autenticação, estado compartilhado, testes e deploy automatizado.
-                </p>
-                <div className="mt-7 rounded-lg border border-cyan-200/20 bg-cyan-200/10 p-5">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">sinal de senioridade</span>
-                  <p className="mt-2 text-sm leading-6 text-cyan-50">
-                    O produto não depende de storytelling estático: o avaliador consegue entrar, mudar dados, trocar de perfil e validar que os fluxos conversam entre si.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                {TECH_RECRUITER_PROOFS.map((proof) => {
-                  const Icon = proof.icon;
-                  return (
-                    <article key={proof.label} className="rounded-lg border border-white/10 bg-white/[0.05] p-5">
-                      <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-cyan-100">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <h3 className="font-display text-xl font-black">{proof.label}</h3>
-                      <p className="mt-3 text-sm leading-6 text-slate-300">{proof.detail}</p>
                     </article>
                   );
                 })}

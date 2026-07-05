@@ -31,14 +31,13 @@ O fluxo público inclui:
 - formulário que calcula prioridade comercial, recomenda próximo passo e salva leads localmente em `kinship.diagnostic.leads`;
 - acesso separado ao workspace autenticado da demo.
 
-## Enhancements de Produto
+## Melhorias de Produto
 
-A landing pública inclui melhorias focadas em conversão e avaliação técnica:
+A landing pública inclui melhorias focadas em conversão comercial e validação de demanda:
 
-- seção **Prova técnica** para tech recruiters validarem arquitetura full-stack, RBAC, dados compartilhados e CI/CD;
 - qualificação de lead com score de 1 a 9 para separar nutrição, discovery e piloto pago;
 - resposta pós-envio com prioridade, recomendação comercial e próximo passo;
-- microprovas no hero destacando demo autenticada, persistência de dados e deploy automatizado.
+- microprovas no hero destacando diagnóstico em 48h, plano semanal de risco e piloto assistido.
 
 ## Login da Demo
 
