@@ -35,7 +35,6 @@ import {
   Database
 } from "lucide-react";
 import {
-  DEMO_CREDENTIALS,
   FALLBACK_AUTH_USER,
   authenticateWithEmail,
   clearAuthUser,
@@ -612,11 +611,6 @@ const App: React.FC = () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
-  const handleCredentialFill = (email: string, password: string) => {
-    setLoginForm({ email, password });
-    setLoginError(null);
-  };
-
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -815,39 +809,29 @@ const App: React.FC = () => {
                   Entrar no workspace
                   <ArrowRight className="h-4 w-4" />
                 </button>
-              </form>
 
-              <div className="mt-7">
-                <div className="mb-3 flex items-center justify-between gap-4">
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-400">Acessos de avaliação</span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                    senha preenchida
-                  </span>
+                <div className="mt-5 grid gap-2 border-t border-slate-100 pt-4 sm:grid-cols-3">
+                  {[
+                    { label: "SSO", detail: "SAML/OIDC", icon: ShieldCheck },
+                    { label: "MFA", detail: "Adaptativo", icon: UserRoundCheck },
+                    { label: "Auditoria", detail: "Sessões", icon: FileCheck },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.label} className="rounded-xl bg-slate-50 p-3">
+                        <Icon className="mb-2 h-4 w-4 text-cyan-700" />
+                        <span className="block text-[11px] font-black uppercase tracking-wider text-slate-700">{item.label}</span>
+                        <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">{item.detail}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="grid gap-2">
-                  {DEMO_CREDENTIALS.map((credential) => (
-                    <button
-                      key={credential.email}
-                      type="button"
-                      onClick={() => handleCredentialFill(credential.email, credential.password)}
-                      className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50"
-                    >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition group-hover:bg-cyan-100 group-hover:text-cyan-700">
-                        <UserRoundCheck className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-extrabold text-slate-900">{credential.label}</span>
-                        <span className="block truncate text-xs font-medium text-slate-500">{credential.email}</span>
-                        <span className="mt-1 block text-[11px] font-medium text-slate-400">{credential.access}</span>
-                      </span>
-                      <span className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 transition group-hover:border-cyan-300 group-hover:text-cyan-700">
-                        usar perfil
-                      </span>
-                    </button>
-                  ))}
+
+                <div className="mt-4 flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs font-semibold leading-5 text-slate-500">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>Acesso provisionado pelo administrador da organização.</span>
                 </div>
-              </div>
+              </form>
             </div>
           </section>
         </main>
