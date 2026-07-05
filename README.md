@@ -27,9 +27,18 @@ O fluxo público inclui:
 
 - landing page focada no ICP de empresas tech/serviços B2B com 80-300 funcionários;
 - oferta de piloto de 30 dias com faixa de preço sugerida de `R$ 1.500 - R$ 3.000/mês`;
-- CTA de diagnóstico de People Ops;
-- formulário de qualificação que salva leads localmente no navegador em `kinship.diagnostic.leads`;
+- CTA de diagnóstico de People Ops com qualificação por headcount, área de risco e urgência;
+- formulário que calcula prioridade comercial, recomenda próximo passo e salva leads localmente em `kinship.diagnostic.leads`;
 - acesso separado ao workspace autenticado da demo.
+
+## Enhancements de Produto
+
+A landing pública inclui melhorias focadas em conversão e avaliação técnica:
+
+- seção **Prova técnica** para tech recruiters validarem arquitetura full-stack, RBAC, dados compartilhados e CI/CD;
+- qualificação de lead com score de 1 a 9 para separar nutrição, discovery e piloto pago;
+- resposta pós-envio com prioridade, recomendação comercial e próximo passo;
+- microprovas no hero destacando demo autenticada, persistência de dados e deploy automatizado.
 
 ## Login da Demo
 

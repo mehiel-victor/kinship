@@ -193,7 +193,20 @@ type DiagnosticLeadForm = {
   email: string;
   company: string;
   headcount: string;
+  riskArea: string;
+  urgency: string;
   pain: string;
+};
+
+type DiagnosticLead = DiagnosticLeadForm & {
+  submittedAt: string;
+  source: "risk-desk-landing";
+  score: number;
+  tier: string;
+  recommendation: string;
+  nextStep: string;
+  riskLabel: string;
+  urgencyLabel: string;
 };
 
 const ACTIVITY_TONE_BY_TYPE: Record<DemoActivity["type"], string> = {
@@ -289,6 +302,75 @@ const GTM_METRICS = [
   { label: "Ticket alvo", value: "R$ 1.5k-3k", detail: "mensalidade para validação comercial" },
 ];
 
+const RISK_AREA_LABELS: Record<string, string> = {
+  "clima-turnover": "Clima e turnover",
+  onboarding: "Onboarding e rampagem",
+  "compliance-dp": "DP, férias e compliance",
+  "performance-succession": "Performance e sucessão",
+};
+
+const URGENCY_LABELS: Record<string, string> = {
+  "next-30-days": "Ação nos próximos 30 dias",
+  quarter: "Resolver neste trimestre",
+  discovery: "Mapear risco antes de escalar",
+};
+
+const TECH_RECRUITER_PROOFS = [
+  {
+    label: "Produto full-stack",
+    detail: "React, TypeScript, Vite, Express e regras de domínio isoladas no backend.",
+    icon: Route,
+  },
+  {
+    label: "Autenticação e RBAC",
+    detail: "Login mockado por email/senha com permissões reais por colaborador, gestor, RH e admin.",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Dados interagindo",
+    detail: "Ações de uma conta aparecem para outras via store persistido e histórico auditável.",
+    icon: Database,
+  },
+  {
+    label: "CI/CD verificável",
+    detail: "GitHub Actions roda lint, build, testes do servidor e deploy na Vercel.",
+    icon: PlayCircle,
+  },
+];
+
+const qualifyDiagnosticLead = (form: DiagnosticLeadForm) => {
+  const headcountScore = form.headcount === "80-150" || form.headcount === "150-300" ? 3 : form.headcount === "300+" ? 2 : 1;
+  const urgencyScore = form.urgency === "next-30-days" ? 3 : form.urgency === "quarter" ? 2 : 1;
+  const riskScore = form.riskArea === "clima-turnover" || form.riskArea === "compliance-dp" ? 2 : 1;
+  const contextScore = form.pain.trim().length >= 80 ? 1 : 0;
+  const score = headcountScore + urgencyScore + riskScore + contextScore;
+
+  if (score >= 8) {
+    return {
+      score,
+      tier: "Alta prioridade",
+      recommendation: "Piloto pago recomendado",
+      nextStep: "Enviar diagnóstico em 48h e propor kickoff executivo na mesma semana.",
+    };
+  }
+
+  if (score >= 5) {
+    return {
+      score,
+      tier: "Boa oportunidade",
+      recommendation: "Discovery consultivo",
+      nextStep: "Validar dono do problema, dados disponíveis e impacto financeiro esperado.",
+    };
+  }
+
+  return {
+    score,
+    tier: "Nutrição",
+    recommendation: "Conteúdo e entrevista exploratória",
+    nextStep: "Entender maturidade de People Ops antes de ofertar piloto pago.",
+  };
+};
+
 const asData = <T,>(value: unknown) => value as T;
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -317,9 +399,11 @@ const App: React.FC = () => {
     email: "",
     company: "",
     headcount: "",
+    riskArea: "",
+    urgency: "",
     pain: "",
   });
-  const [diagnosticSubmitted, setDiagnosticSubmitted] = useState(false);
+  const [diagnosticResult, setDiagnosticResult] = useState<DiagnosticLead | null>(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -661,17 +745,21 @@ const App: React.FC = () => {
 
   const handleDiagnosticSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const qualification = qualifyDiagnosticLead(diagnosticForm);
 
-    const lead = {
+    const lead: DiagnosticLead = {
       ...diagnosticForm,
+      ...qualification,
       submittedAt: new Date().toISOString(),
       source: "risk-desk-landing",
+      riskLabel: RISK_AREA_LABELS[diagnosticForm.riskArea] || "Risco não informado",
+      urgencyLabel: URGENCY_LABELS[diagnosticForm.urgency] || "Urgência não informada",
     };
 
     const currentLeads = JSON.parse(localStorage.getItem("kinship.diagnostic.leads") || "[]") as unknown[];
     localStorage.setItem("kinship.diagnostic.leads", JSON.stringify([lead, ...currentLeads].slice(0, 25)));
-    setDiagnosticSubmitted(true);
-    setDiagnosticForm({ name: "", email: "", company: "", headcount: "", pain: "" });
+    setDiagnosticResult(lead);
+    setDiagnosticForm({ name: "", email: "", company: "", headcount: "", riskArea: "", urgency: "", pain: "" });
   };
 
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
@@ -717,6 +805,7 @@ const App: React.FC = () => {
             </div>
             <nav className="hidden items-center gap-6 text-xs font-black uppercase tracking-wider text-slate-400 md:flex">
               <a href="#wedge" className="transition hover:text-white">Problema</a>
+              <a href="#technical-proof" className="transition hover:text-white">Prova técnica</a>
               <a href="#pilot" className="transition hover:text-white">Piloto</a>
               <a href="#diagnostic-form" className="transition hover:text-white">Diagnóstico</a>
             </nav>
@@ -763,6 +852,13 @@ const App: React.FC = () => {
                   >
                     Ver workspace
                   </button>
+                </div>
+                <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
+                  {["Demo autenticada", "Dados persistidos", "Deploy com CI/CD"].map((item) => (
+                    <div key={item} className="rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-black uppercase tracking-wider text-slate-300">
+                      {item}
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -841,6 +937,39 @@ const App: React.FC = () => {
             </div>
           </section>
 
+          <section id="technical-proof" className="bg-slate-950 px-5 py-16 text-white sm:px-8 lg:py-24">
+            <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
+              <div>
+                <span className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">enhancement para recrutadores</span>
+                <h2 className="mt-3 font-display text-4xl font-black tracking-tight sm:text-5xl">Dá para avaliar produto, código e entrega em uma visita.</h2>
+                <p className="mt-5 text-base leading-7 text-slate-300">
+                  A landing agora evidencia sinais que importam para tech recruiters: arquitetura full-stack, autenticação, estado compartilhado, testes e deploy automatizado.
+                </p>
+                <div className="mt-7 rounded-lg border border-cyan-200/20 bg-cyan-200/10 p-5">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">sinal de senioridade</span>
+                  <p className="mt-2 text-sm leading-6 text-cyan-50">
+                    O produto não depende de storytelling estático: o avaliador consegue entrar, mudar dados, trocar de perfil e validar que os fluxos conversam entre si.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {TECH_RECRUITER_PROOFS.map((proof) => {
+                  const Icon = proof.icon;
+                  return (
+                    <article key={proof.label} className="rounded-lg border border-white/10 bg-white/[0.05] p-5">
+                      <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-cyan-100">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="font-display text-xl font-black">{proof.label}</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-300">{proof.detail}</p>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
           <section id="pilot" className="bg-white px-5 py-16 text-slate-950 sm:px-8 lg:py-24">
             <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
               <div>
@@ -882,6 +1011,30 @@ const App: React.FC = () => {
                     </div>
                   ))}
                 </div>
+                {diagnosticResult && (
+                  <div className="mt-5 rounded-lg border border-emerald-300/20 bg-emerald-300/10 p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-100">último lead qualificado</span>
+                        <h3 className="mt-2 font-display text-2xl font-black text-white">{diagnosticResult.company}</h3>
+                      </div>
+                      <span className="rounded-lg border border-emerald-200/25 bg-emerald-200/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-emerald-50">
+                        Score {diagnosticResult.score}/9
+                      </span>
+                    </div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-lg bg-slate-950/30 p-3">
+                        <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-100/70">Prioridade</span>
+                        <strong className="mt-1 block text-sm text-emerald-50">{diagnosticResult.tier}</strong>
+                      </div>
+                      <div className="rounded-lg bg-slate-950/30 p-3">
+                        <span className="block text-[10px] font-black uppercase tracking-wider text-emerald-100/70">Oferta</span>
+                        <strong className="mt-1 block text-sm text-emerald-50">{diagnosticResult.recommendation}</strong>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-6 text-emerald-50">{diagnosticResult.nextStep}</p>
+                  </div>
+                )}
               </div>
 
               <form onSubmit={handleDiagnosticSubmit} className="rounded-lg border border-white/10 bg-white p-5 text-slate-950 shadow-2xl shadow-black/30">
@@ -938,6 +1091,36 @@ const App: React.FC = () => {
                       </select>
                     </label>
                   </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Área de risco</span>
+                      <select
+                        value={diagnosticForm.riskArea}
+                        onChange={(event) => setDiagnosticForm(prev => ({ ...prev, riskArea: event.target.value }))}
+                        required
+                        className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                      >
+                        <option value="">Selecione</option>
+                        {Object.entries(RISK_AREA_LABELS).map(([value, label]) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Urgência</span>
+                      <select
+                        value={diagnosticForm.urgency}
+                        onChange={(event) => setDiagnosticForm(prev => ({ ...prev, urgency: event.target.value }))}
+                        required
+                        className="w-full rounded-lg border border-slate-200 px-3 py-3 text-sm font-semibold outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                      >
+                        <option value="">Selecione</option>
+                        {Object.entries(URGENCY_LABELS).map(([value, label]) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                   <label className="block">
                     <span className="mb-1.5 block text-xs font-black uppercase tracking-wider text-slate-500">Maior risco hoje</span>
                     <textarea
@@ -950,9 +1133,9 @@ const App: React.FC = () => {
                     />
                   </label>
                 </div>
-                {diagnosticSubmitted && (
+                {diagnosticResult && (
                   <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-800">
-                    Diagnóstico registrado. Lead salvo no pipeline local da demo.
+                    Diagnóstico registrado como {diagnosticResult.tier.toLowerCase()}. Lead salvo no pipeline local da demo.
                   </div>
                 )}
                 <button
