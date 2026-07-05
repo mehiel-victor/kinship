@@ -2,7 +2,7 @@ export const mockEmployees = [
   {
     id: "1",
     name: "João Silva",
-    email: "joao.silva@betalent.com",
+    email: "joao.silva@kinship.demo",
     image: "https://i.pravatar.cc/150?img=1",
     job: "Desenvolvedor Frontend",
     status: "ACTIVE",
@@ -13,7 +13,7 @@ export const mockEmployees = [
   {
     id: "3",
     name: "Maria Santos",
-    email: "maria.santos@betalent.com",
+    email: "maria.santos@kinship.demo",
     image: "https://i.pravatar.cc/150?img=3",
     job: "Tech Lead",
     status: "ACTIVE",
@@ -24,7 +24,7 @@ export const mockEmployees = [
   {
     id: "8",
     name: "Carla Pereira",
-    email: "carla.pereira@betalent.com",
+    email: "carla.pereira@kinship.demo",
     image: "https://i.pravatar.cc/150?img=8",
     job: "Especialista RH",
     status: "ACTIVE",

@@ -11,7 +11,7 @@ export const employees: Employee[] = [
   {
     id: '1',
     name: 'João Silva',
-    email: 'joao.silva@betalent.com',
+    email: 'joao.silva@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2019-12-02T00:00:00.000Z',
@@ -25,7 +25,7 @@ export const employees: Employee[] = [
   {
     id: '2',
     name: 'Roberto Souza',
-    email: 'roberto.souza@betalent.com',
+    email: 'roberto.souza@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2020-03-12T00:00:00.000Z',
@@ -39,7 +39,7 @@ export const employees: Employee[] = [
   {
     id: '3',
     name: 'Maria Santos',
-    email: 'maria.santos@betalent.com',
+    email: 'maria.santos@kinship.demo',
     role: 'MANAGER',
     departmentId: 'DEP_TECH',
     hireDate: '2020-03-15T00:00:00.000Z',
@@ -53,7 +53,7 @@ export const employees: Employee[] = [
   {
     id: '4',
     name: 'Cleber Oliveira',
-    email: 'cleber.oliveira@betalent.com',
+    email: 'cleber.oliveira@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2020-06-01T00:00:00.000Z',
@@ -67,7 +67,7 @@ export const employees: Employee[] = [
   {
     id: '5',
     name: 'Giovana Costa',
-    email: 'giovana.costa@betalent.com',
+    email: 'giovana.costa@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_DESIGN',
     hireDate: '2020-06-20T00:00:00.000Z',
@@ -81,7 +81,7 @@ export const employees: Employee[] = [
   {
     id: '6',
     name: 'Mario Rossi',
-    email: 'mario.rossi@betalent.com',
+    email: 'mario.rossi@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2020-10-01T00:00:00.000Z',
@@ -95,7 +95,7 @@ export const employees: Employee[] = [
   {
     id: '7',
     name: 'Gabriel Gomes',
-    email: 'gabriel.gomes@betalent.com',
+    email: 'gabriel.gomes@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2021-01-01T00:00:00.000Z',
@@ -109,7 +109,7 @@ export const employees: Employee[] = [
   {
     id: '8',
     name: 'Carla Nogueira',
-    email: 'carla.nogueira@betalent.com',
+    email: 'carla.nogueira@kinship.demo',
     role: 'HR',
     departmentId: 'DEP_HR',
     hireDate: '2021-03-01T00:00:00.000Z',
@@ -123,7 +123,7 @@ export const employees: Employee[] = [
   {
     id: '10',
     name: 'Fernanda Lima',
-    email: 'fernanda.lima@betalent.com',
+    email: 'fernanda.lima@kinship.demo',
     role: 'HR',
     departmentId: 'DEP_HR',
     hireDate: '2021-05-01T00:00:00.000Z',
@@ -137,7 +137,7 @@ export const employees: Employee[] = [
   {
     id: '11',
     name: 'Aline Araujo',
-    email: 'aline.araujo@betalent.com',
+    email: 'aline.araujo@kinship.demo',
     role: 'EMPLOYEE',
     departmentId: 'DEP_TECH',
     hireDate: '2026-06-01T00:00:00.000Z',

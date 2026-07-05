@@ -6,8 +6,8 @@ Este repositório contém a **Kinship**, uma plataforma centralizada e inteligen
 
 O projeto é estruturado como um monorepo dividido em:
 
-- [client](file:///home/mehiel/Documents/Development/Projects/desafio-front-end/client/): Front-end desenvolvido com React.js (com TypeScript), Tailwind CSS e Vite. Apresenta uma interface de alta fidelidade com suporte a temas claro/escuro, animações micro-interativas e painéis dinâmicos para todas as verticais do produto.
-- [server](file:///home/mehiel/Documents/Development/Projects/desafio-front-end/server/): Back-end em Node.js / Express / TypeScript contendo a lógica de negócios e as regras de compliance (Payroll, Climate, Performance, Talent).
+- [client](client/): Front-end desenvolvido com React.js (com TypeScript), Tailwind CSS e Vite. Apresenta uma interface de alta fidelidade com suporte a temas claro/escuro, animações micro-interativas e painéis dinâmicos para todas as verticais do produto.
+- [server](server/): Back-end em Node.js / Express / TypeScript contendo a lógica de negócios e as regras de compliance (Payroll, Climate, Performance, Talent).
 
 ## Módulos Implementados (Backend & Frontend)
 
@@ -18,6 +18,17 @@ O projeto é estruturado como um monorepo dividido em:
 5. **Climate**: Coletor de eNPS com anonimato assegurado e agregação restrita a times com 3 ou mais membros.
 6. **Payroll & Compliance**: Regras de férias, cálculo de limite de período concessivo, bloqueio de sobreposição de férias críticas e exportação CNAB mockada.
 7. **Analytics**: Headcount, turnover, absenteísmo e análise de correlação preditiva.
+
+## Login da Demo
+
+O front-end publicado na Vercel usa autenticação mockada por email/senha para demonstrar RBAC sem depender de backend local. As credenciais abaixo são apenas para a demo:
+
+| Perfil | Email | Senha | Permissões demonstradas |
+| --- | --- | --- | --- |
+| Colaborador | `joao.silva@kinship.demo` | `Kinship@2026` | Feedback 360, pesquisa de clima e férias |
+| Gestora técnica | `maria.santos@kinship.demo` | `Kinship@2026` | Time, vagas, performance e compliance |
+| Recursos Humanos | `carla.pereira@kinship.demo` | `Kinship@2026` | People Ops completo |
+| Administrador | `admin@kinship.demo` | `Kinship@2026` | Visão administrativa geral |
 
 ## Como Executar o Projeto
 

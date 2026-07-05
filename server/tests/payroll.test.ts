@@ -15,7 +15,7 @@ describe('Module/PayrollCompliance', () => {
       {
         id: '1',
         name: 'João Silva',
-        email: 'joao@betalent.com',
+        email: 'joao@kinship.demo',
         role: 'EMPLOYEE',
         departmentId: 'DEP_TECH',
         hireDate: '2020-06-01T00:00:00.000Z',
@@ -29,7 +29,7 @@ describe('Module/PayrollCompliance', () => {
       {
         id: '2',
         name: 'Roberto Souza',
-        email: 'roberto@betalent.com',
+        email: 'roberto@kinship.demo',
         role: 'EMPLOYEE',
         departmentId: 'DEP_TECH',
         hireDate: '2020-06-01T00:00:00.000Z',
@@ -43,7 +43,7 @@ describe('Module/PayrollCompliance', () => {
       {
         id: '3',
         name: 'Giovana Costa',
-        email: 'giovana@betalent.com',
+        email: 'giovana@kinship.demo',
         role: 'EMPLOYEE',
         departmentId: 'DEP_DESIGN', // Different department
         hireDate: '2020-06-01T00:00:00.000Z',

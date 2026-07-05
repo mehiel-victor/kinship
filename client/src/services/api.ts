@@ -19,7 +19,8 @@ type DemoDocument = {
   id: string;
   fileName: string;
   signedAt: string;
-  hash: string;
+  sha256Hash: string;
+  auditSignature: string;
 };
 type DemoTask = {
   id: string;
@@ -46,7 +47,7 @@ const demoEmployees: DemoEmployee[] = [
   {
     id: "12",
     name: "Rafael Almeida",
-    email: "rafael.almeida@betalent.com",
+    email: "rafael.almeida@kinship.demo",
     image: "https://i.pravatar.cc/150?img=12",
     job: "Product Designer",
     status: "ONBOARDING",
@@ -95,7 +96,8 @@ const onboardingState = new Map<string, { tasks: DemoTask[]; documents: DemoDocu
           id: "doc-1",
           fileName: "Contrato_Admissao_Rafael.pdf",
           signedAt: "2026-06-18T14:30:00.000Z",
-          hash: "9f86d081884c7d659a2feaa0c55ad015",
+          sha256Hash: "9f86d081884c7d659a2feaa0c55ad015",
+          auditSignature: "KINSHIP-AUDIT-20260618-143000-RAFAEL",
         },
       ],
     },
@@ -291,7 +293,8 @@ export async function fetchAPI(endpoint: string, options?: RequestInit): Promise
         id: `doc-${onboarding.documents.length + 1}`,
         fileName,
         signedAt: new Date().toISOString(),
-        hash: crypto.randomUUID().replace(/-/g, "").slice(0, 32),
+        sha256Hash: crypto.randomUUID().replace(/-/g, "").slice(0, 32),
+        auditSignature: `KINSHIP-AUDIT-${crypto.randomUUID().replace(/-/g, "").toUpperCase()}`,
       };
       onboarding.documents.unshift(document);
 

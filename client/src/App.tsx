@@ -18,18 +18,150 @@ import {
   RefreshCw,
   Download,
   AlertCircle,
-  Repeat
+  Repeat,
+  Mail,
+  Lock,
+  ArrowRight,
+  LogOut,
+  UserRoundCheck
 } from "lucide-react";
+import {
+  DEMO_CREDENTIALS,
+  FALLBACK_AUTH_USER,
+  authenticateWithEmail,
+  clearAuthUser,
+  getStoredAuthUser,
+  storeAuthUser,
+  type AuthUser,
+  type UserRole,
+} from "./services/auth";
 import { fetchAPI } from "./services/api";
 
-const ROLE_PERMISSIONS: Record<'EMPLOYEE' | 'MANAGER' | 'HR' | 'ADMIN', string[]> = {
+const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   EMPLOYEE: ["performance", "climate", "payroll"],
   MANAGER: ["dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
   HR: ["dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"],
   ADMIN: ["dashboard", "employees", "talent", "performance", "redundancy", "climate", "payroll"]
 };
 
+const getDefaultTab = (role: UserRole) => ROLE_PERMISSIONS[role]?.[0] || "performance";
+
+function createInitialAuthState() {
+  const storedUser = getStoredAuthUser();
+
+  return {
+    isAuthenticated: Boolean(storedUser),
+    user: storedUser || FALLBACK_AUTH_USER,
+  };
+}
+
+type Employee = {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
+  job: string;
+  status: string;
+  phone: string;
+  hireDate: string;
+  departmentId: string;
+};
+
+type OnboardingTask = {
+  id: string;
+  title: string;
+  dueDate: string;
+  phase: string;
+  completed: boolean;
+};
+
+type SignedDocument = {
+  id: string;
+  fileName: string;
+  signedAt: string;
+  sha256Hash: string;
+  auditSignature: string;
+};
+
+type Candidate = {
+  id: string;
+  name: string;
+  email: string;
+  notes: string;
+  skills: string[];
+  matchingScore: number;
+};
+
+type Vacancy = {
+  id: string;
+  title: string;
+  description: string;
+  departmentId: string;
+  requirements?: string[];
+};
+
+type ReviewScore = {
+  competencyId: string;
+  rating: number;
+  comment: string;
+};
+
+type PerformanceReview = {
+  id?: string;
+  employeeId: string;
+  evaluatorId?: string;
+  relationship: string;
+  cycleId?: string;
+  scores: ReviewScore[];
+  submittedAt: string;
+};
+
+type ClimateAggregate = {
+  departmentId: string;
+  averageENPS?: number;
+  isMasked?: boolean;
+};
+
+type ClimateReport = {
+  globalENPS: number;
+  aggregates: ClimateAggregate[];
+};
+
+type PayrollAuditItem = {
+  employeeId: string;
+  issue: string;
+};
+
+type Vacation = {
+  id?: string;
+  employeeId: string;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+  status: string;
+};
+
+type Analytics = {
+  headcount: number;
+  activeCount: number;
+  onboardingCount: number;
+  enps: number;
+  predictiveInsights: string[];
+  turnoverRate: number;
+  absenteeismRate: number;
+};
+
+const asData = <T,>(value: unknown) => value as T;
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  return error instanceof Error ? error.message : fallback;
+};
+
 const App: React.FC = () => {
+  const [authState, setAuthState] = useState(createInitialAuthState);
+  const currentUser = authState.user;
+  const isAuthenticated = authState.isAuthenticated;
+
   // Theme state
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("theme") === "dark" || 
@@ -37,56 +169,51 @@ const App: React.FC = () => {
   });
 
   // Current active tab
-  const [activeTab, setActiveTab] = useState("dashboard");
-
-  const [currentUser, setCurrentUser] = useState({
-    id: "1",
-    name: "João Silva",
-    email: "joao.silva@betalent.com",
-    role: "EMPLOYEE" as 'EMPLOYEE' | 'MANAGER' | 'HR' | 'ADMIN',
-    departmentId: "DEP_TECH"
-  });
+  const [activeTab, setActiveTab] = useState(() => getDefaultTab(currentUser.role));
 
   const [performanceViewTargetId, setPerformanceViewTargetId] = useState(currentUser.id);
+
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     setPerformanceViewTargetId(currentUser.id);
   }, [currentUser.id]);
 
   // App States
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   
   // Onboarding items
-  const [onboardingTasks, setOnboardingTasks] = useState<any[]>([]);
-  const [signedDocs, setSignedDocs] = useState<any[]>([]);
+  const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>([]);
+  const [signedDocs, setSignedDocs] = useState<SignedDocument[]>([]);
   const [uploadingDocName, setUploadingDocName] = useState("");
 
   // Talent candidates and vacancies
-  const [candidates, setCandidates] = useState<any[]>([]);
-  const [vacancies, setVacancies] = useState<any[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [newVacancy, setNewVacancy] = useState({ title: "", description: "", departmentId: "DEP_TECH", requirements: "" });
 
   // Performance reviews
-  const [reviewsHistory, setReviewsHistory] = useState<any[]>([]);
-  const [consolidatedScores, setConsolidatedScores] = useState<any>({});
+  const [reviewsHistory, setReviewsHistory] = useState<PerformanceReview[]>([]);
+  const [consolidatedScores, setConsolidatedScores] = useState<Record<string, number>>({});
   const [reviewForm, setReviewForm] = useState({ targetId: "", competencyId: "TECH", rating: 5, comment: "" });
 
   // Climate state
-  const [climateReport, setClimateReport] = useState<any>(null);
+  const [climateReport, setClimateReport] = useState<ClimateReport | null>(null);
   const [climateForm, setClimateForm] = useState({ enpsScore: 10, sentimentRating: 5 });
   const [surveySubmitted, setSurveySubmitted] = useState(false);
 
   // Payroll / DP state
-  const [payrollAudit, setPayrollAudit] = useState<any[]>([]);
-  const [vacations, setVacations] = useState<any[]>([]);
+  const [payrollAudit, setPayrollAudit] = useState<PayrollAuditItem[]>([]);
+  const [vacations, setVacations] = useState<Vacation[]>([]);
   const [vacationLimitDate, setVacationLimitDate] = useState<string | null>(null);
   const [vacationForm, setVacationForm] = useState({ startDate: "", endDate: "", reason: "" });
   const [cnabPreview, setCnabPreview] = useState<string | null>(null);
 
   // Global Analytics
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
   // Loading triggers
   const [loading, setLoading] = useState(true);
@@ -108,6 +235,11 @@ const App: React.FC = () => {
 
   // Load initial data
   useEffect(() => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
     const loadData = async () => {
       try {
         setLoading(true);
@@ -115,73 +247,79 @@ const App: React.FC = () => {
 
         // Fetch Employees
         const emps = await fetchAPI(`/employees?query=${searchTerm}`);
-        setEmployees(emps);
+        setEmployees(asData<Employee[]>(emps));
 
         // Fetch Analytics
         const analyticsData = await fetchAPI("/analytics");
-        setAnalytics(analyticsData);
+        setAnalytics(asData<Analytics>(analyticsData));
 
         // Fetch Talent (Candidates and Vacancies)
         const candidatesData = await fetchAPI("/talent/candidates");
-        setCandidates(candidatesData);
+        setCandidates(asData<Candidate[]>(candidatesData));
 
         const vacanciesData = await fetchAPI("/talent/vacancies");
-        setVacancies(vacanciesData);
+        setVacancies(asData<Vacancy[]>(vacanciesData));
 
         // Fetch Climate
         const climateData = await fetchAPI("/climate/aggregate");
-        setClimateReport(climateData);
+        setClimateReport(asData<ClimateReport>(climateData));
 
         // Fetch Vacations & Audits
         const vacts = await fetchAPI("/payroll/vacations");
-        setVacations(vacts);
+        setVacations(asData<Vacation[]>(vacts));
 
         const audit = await fetchAPI("/payroll/audit");
-        setPayrollAudit(audit.inconsistencies);
+        setPayrollAudit(asData<{ inconsistencies: PayrollAuditItem[] }>(audit).inconsistencies);
 
         // Fetch limit date for logged-in user
         const limitRes = await fetchAPI(`/payroll/vacations/limit/${currentUser.id}`);
-        setVacationLimitDate(limitRes.limitDate);
+        setVacationLimitDate(asData<{ limitDate: string }>(limitRes).limitDate);
 
         setLoading(false);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
         setErrorMessage("Erro ao carregar dados do servidor. Certifique-se de que o backend está rodando na porta 3001.");
         setLoading(false);
       }
     };
     loadData();
-  }, [searchTerm, refreshTrigger, currentUser.id]);
+  }, [searchTerm, refreshTrigger, currentUser.id, isAuthenticated]);
 
   // Fetch performance reviews for the active performance target
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
     const loadReviews = async () => {
       try {
         const reviewsRes = await fetchAPI(`/performance/reviews/${performanceViewTargetId}`);
-        setConsolidatedScores(reviewsRes.consolidated);
-        setReviewsHistory(reviewsRes.reviews);
+        const performanceData = asData<{ consolidated: Record<string, number>; reviews: PerformanceReview[] }>(reviewsRes);
+        setConsolidatedScores(performanceData.consolidated);
+        setReviewsHistory(performanceData.reviews);
       } catch (err) {
         console.error(err);
       }
     };
     loadReviews();
-  }, [performanceViewTargetId, refreshTrigger]);
+  }, [performanceViewTargetId, refreshTrigger, isAuthenticated]);
 
   // Fetch onboarding details when selectedEmployee changes
   useEffect(() => {
-    if (selectedEmployee) {
+    if (isAuthenticated && selectedEmployee) {
       const loadOnboarding = async () => {
         try {
           const data = await fetchAPI(`/employees/${selectedEmployee.id}/onboarding`);
-          setOnboardingTasks(data.tasks);
-          setSignedDocs(data.documents);
+          const onboarding = asData<{ tasks: OnboardingTask[]; documents: SignedDocument[] }>(data);
+          setOnboardingTasks(onboarding.tasks);
+          setSignedDocs(onboarding.documents);
         } catch (err) {
           console.error(err);
         }
       };
       loadOnboarding();
     }
-  }, [selectedEmployee]);
+  }, [selectedEmployee, isAuthenticated]);
 
   // Handle onboarding task checklist update
   const handleTaskToggle = async (taskId: string, currentStatus: boolean) => {
@@ -193,7 +331,7 @@ const App: React.FC = () => {
       });
       // Refresh onboarding status
       const data = await fetchAPI(`/employees/${selectedEmployee.id}/onboarding`);
-      setOnboardingTasks(data.tasks);
+      setOnboardingTasks(asData<{ tasks: OnboardingTask[] }>(data).tasks);
       
       // Update local employee status if it changed
       setRefreshTrigger(prev => prev + 1);
@@ -213,10 +351,11 @@ const App: React.FC = () => {
       });
       
       setUploadingDocName("");
-      setSignedDocs(prev => [...prev, res.document]);
+      const uploadResult = asData<{ document: SignedDocument; employeeStatus: string }>(res);
+      setSignedDocs(prev => [...prev, uploadResult.document]);
       
-      if (res.employeeStatus === 'ACTIVE') {
-        setSelectedEmployee((prev: any) => ({ ...prev, status: 'ACTIVE' }));
+      if (uploadResult.employeeStatus === 'ACTIVE') {
+        setSelectedEmployee((prev: Employee | null) => prev ? ({ ...prev, status: 'ACTIVE' }) : prev);
       }
       setRefreshTrigger(prev => prev + 1);
     } catch (err) {
@@ -283,8 +422,8 @@ const App: React.FC = () => {
       });
       setSurveySubmitted(true);
       setRefreshTrigger(prev => prev + 1);
-    } catch (err: any) {
-      alert(err.message || "Erro ao submeter clima.");
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, "Erro ao submeter clima."));
     }
   };
 
@@ -304,8 +443,8 @@ const App: React.FC = () => {
       setVacationForm({ startDate: "", endDate: "", reason: "" });
       alert("Férias aprovadas e agendadas com sucesso!");
       setRefreshTrigger(prev => prev + 1);
-    } catch (err: any) {
-      alert(`Bloqueio de Compliance: ${err.message}`);
+    } catch (err: unknown) {
+      alert(`Bloqueio de Compliance: ${getErrorMessage(err, "Solicitação recusada.")}`);
     }
   };
 
@@ -326,36 +465,183 @@ const App: React.FC = () => {
     }
   };
 
-  const handleRoleChange = (role: 'EMPLOYEE' | 'MANAGER' | 'HR' | 'ADMIN') => {
-    let mockId = "1"; // João
-    let deptId = "DEP_TECH";
-
-    if (role === 'MANAGER') {
-      mockId = "3"; // Maria
-      deptId = "DEP_TECH";
-    } else if (role === 'HR') {
-      mockId = "8"; // Carla
-      deptId = "DEP_HR";
-    } else if (role === 'ADMIN') {
-      mockId = "1";
-      deptId = "DEP_TECH";
-    }
-
-    const matchedEmp = employees.find(e => e.id === mockId);
-
-    setCurrentUser({
-      id: mockId,
-      name: matchedEmp ? matchedEmp.name : (role === 'ADMIN' ? 'Administrador Geral' : "Colaborador"),
-      email: matchedEmp ? matchedEmp.email : "admin@betalent.com",
-      role,
-      departmentId: deptId
-    });
-
-    const allowed = ROLE_PERMISSIONS[role] || [];
-    if (!allowed.includes(activeTab)) {
-      setActiveTab(allowed[0] || "performance");
-    }
+  const startAuthenticatedSession = (user: AuthUser) => {
+    setAuthState({ isAuthenticated: true, user });
+    storeAuthUser(user);
+    setActiveTab(getDefaultTab(user.role));
+    setErrorMessage(null);
+    setLoginError(null);
+    setRefreshTrigger(prev => prev + 1);
   };
+
+  const handleCredentialFill = (email: string, password: string) => {
+    setLoginForm({ email, password });
+    setLoginError(null);
+  };
+
+  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const user = authenticateWithEmail(loginForm.email, loginForm.password);
+    if (!user) {
+      setLoginError("Email ou senha inválidos para a demo.");
+      return;
+    }
+
+    setLoginForm({ email: "", password: "" });
+    startAuthenticatedSession(user);
+  };
+
+  const handleLogout = () => {
+    clearAuthUser();
+    setAuthState({ isAuthenticated: false, user: FALLBACK_AUTH_USER });
+    setActiveTab(getDefaultTab(FALLBACK_AUTH_USER.role));
+    setSelectedEmployee(null);
+    setSurveySubmitted(false);
+    setCnabPreview(null);
+    setLoginForm({ email: "", password: "" });
+    setLoginError(null);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white font-sans">
+        <main className="min-h-screen grid lg:grid-cols-[minmax(0,0.96fr)_minmax(27rem,0.74fr)]">
+          <section className="relative overflow-hidden px-6 py-8 sm:px-10 lg:px-14 lg:py-12 flex flex-col justify-between">
+            <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_18%_20%,rgba(99,102,241,0.34),transparent_32%),radial-gradient(circle_at_78%_8%,rgba(20,184,166,0.18),transparent_30%),linear-gradient(135deg,rgba(15,23,42,1),rgba(2,6,23,1))]" />
+            <div className="relative">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/kinship_logo.png"
+                  alt="Kinship"
+                  className="h-12 w-12 rounded-2xl object-cover object-top border border-white/10 shadow-2xl"
+                />
+                <div>
+                  <span className="block font-display text-2xl font-extrabold tracking-tight">Kinship</span>
+                  <span className="text-sm text-slate-300">People & Culture Platform</span>
+                </div>
+              </div>
+
+              <div className="mt-24 max-w-3xl">
+                <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-300/25 bg-indigo-300/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-indigo-100">
+                  <ShieldCheck className="h-4 w-4" />
+                  Acesso RBAC por email
+                </p>
+                <h1 className="font-display text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
+                  People Ops com login real de demo.
+                </h1>
+                <p className="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+                  Cada conta abre uma visão diferente do produto: colaborador, gestor, RH ou administrador. A sessão fica salva no navegador e os fluxos seguem com dados mockados seguros.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative mt-12 grid gap-3 sm:grid-cols-3">
+              {[
+                { value: "4", label: "contas demo" },
+                { value: "7", label: "módulos protegidos" },
+                { value: "0", label: "backend obrigatório" },
+              ].map((item) => (
+                <div key={item.label} className="border border-white/10 bg-white/[0.04] p-4 backdrop-blur">
+                  <strong className="block font-display text-3xl font-black">{item.value}</strong>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="flex min-h-screen items-center justify-center bg-white px-6 py-10 text-slate-950 dark:bg-slate-900 dark:text-white sm:px-10">
+            <div className="w-full max-w-md">
+              <div className="mb-8">
+                <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
+                  <UserRoundCheck className="h-5 w-5" />
+                </span>
+                <h2 className="font-display text-3xl font-extrabold tracking-tight">Entrar no Kinship</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                  Use uma conta demo por email para acessar as permissões do perfil.
+                </p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Email</span>
+                  <span className="relative block">
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="email"
+                      value={loginForm.email}
+                      onChange={(event) => setLoginForm(prev => ({ ...prev, email: event.target.value }))}
+                      autoComplete="email"
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-indigo-950"
+                      placeholder="email@kinship.demo"
+                    />
+                  </span>
+                </label>
+
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">Senha</span>
+                  <span className="relative block">
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="password"
+                      value={loginForm.password}
+                      onChange={(event) => setLoginForm(prev => ({ ...prev, password: event.target.value }))}
+                      autoComplete="current-password"
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-medium text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-indigo-950"
+                      placeholder="Senha da conta demo"
+                    />
+                  </span>
+                </label>
+
+                {loginError && (
+                  <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    {loginError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-extrabold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-950"
+                >
+                  Entrar
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+
+              <div className="mt-8">
+                <div className="mb-3 flex items-center justify-between gap-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Contas demo</span>
+                  <span className="text-[11px] font-semibold text-slate-400">senha no README</span>
+                </div>
+                <div className="grid gap-2">
+                  {DEMO_CREDENTIALS.map((credential) => (
+                    <button
+                      key={credential.email}
+                      type="button"
+                      onClick={() => handleCredentialFill(credential.email, credential.password)}
+                      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-indigo-300 hover:bg-indigo-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/30"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold text-slate-900 dark:text-white">{credential.label}</span>
+                        <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{credential.email}</span>
+                        <span className="mt-1 block text-[11px] font-medium text-slate-400">{credential.access}</span>
+                      </span>
+                      <span className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 transition group-hover:border-indigo-300 group-hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400">
+                        usar
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
@@ -408,22 +694,15 @@ const App: React.FC = () => {
           </nav>
         </div>
 
-        {/* User context selector & settings info */}
+        {/* Authenticated user and settings */}
         <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="mb-4">
-            <label className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
-              Perfil Simulado (Logado)
-            </label>
-            <select
-              value={currentUser.role}
-              onChange={(e) => handleRoleChange(e.target.value as any)}
-              className="w-full text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none"
-            >
-              <option value="EMPLOYEE">Colaborador (João)</option>
-              <option value="MANAGER">Gestor Técnico (Maria)</option>
-              <option value="HR">Recursos Humanos (Carla)</option>
-              <option value="ADMIN">Administrador Geral</option>
-            </select>
+          <div className="mb-4 rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950/70">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">
+              Sessão autenticada
+            </span>
+            <span className="inline-flex rounded-lg bg-indigo-50 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
+              {currentUser.role}
+            </span>
           </div>
 
           <div className="flex items-center justify-between gap-2">
@@ -431,13 +710,22 @@ const App: React.FC = () => {
               <p className="text-xs font-semibold truncate text-slate-800 dark:text-slate-200">{currentUser.name}</p>
               <p className="text-[10px] text-slate-400 truncate">{currentUser.email}</p>
             </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-200 dark:border-slate-800"
-              title="Alternar Tema"
-            >
-              {darkMode ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-indigo-500" />}
-            </button>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-200 dark:border-slate-800"
+                title="Alternar Tema"
+              >
+                {darkMode ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-indigo-500" />}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors border border-slate-200 dark:border-slate-800"
+                title="Sair"
+              >
+                <LogOut className="h-4 w-4 text-red-500" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -501,7 +789,7 @@ const App: React.FC = () => {
                         { label: "Colaboradores sob minha gestão", val: employees.filter(e => e.departmentId === currentUser.departmentId).length, color: "from-blue-500 to-indigo-500" },
                         { label: "Status Ativos", val: employees.filter(e => e.departmentId === currentUser.departmentId && e.status === 'ACTIVE').length, color: "from-emerald-500 to-teal-500" },
                         { label: "Em Onboarding", val: employees.filter(e => e.departmentId === currentUser.departmentId && e.status === 'ONBOARDING').length, color: "from-amber-500 to-orange-500" },
-                        { label: "eNPS da Tecnologia", val: climateReport?.aggregates?.find((a: any) => a.departmentId === currentUser.departmentId)?.averageENPS || 72, color: "from-purple-500 to-pink-500", note: "Foco setorial" }
+                        { label: "eNPS da Tecnologia", val: climateReport?.aggregates?.find((a) => a.departmentId === currentUser.departmentId)?.averageENPS || 72, color: "from-purple-500 to-pink-500", note: "Foco setorial" }
                       ].map((card, i) => (
                         <div key={i} className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
                           <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${card.color}`}></div>
@@ -586,7 +874,7 @@ const App: React.FC = () => {
                         <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pesquisa Anônima por Área</h4>
                           <div className="space-y-3">
-                            {climateReport?.aggregates?.map((agg: any) => (
+                            {climateReport?.aggregates?.map((agg) => (
                               <div key={agg.departmentId} className="flex justify-between items-center text-xs">
                                 <span className="font-medium">{agg.departmentId === 'DEP_TECH' ? 'Tecnologia' : agg.departmentId === 'DEP_HR' ? 'Recursos Humanos' : agg.departmentId}</span>
                                 {agg.isMasked ? (
@@ -935,7 +1223,7 @@ const App: React.FC = () => {
                                 <span>{new Date(rev.submittedAt).toLocaleDateString('pt-BR')}</span>
                               </div>
                               <div className="mt-2 space-y-1">
-                                {rev.scores.map((s: any, sidx: number) => (
+                                {rev.scores.map((s, sidx) => (
                                   <div key={sidx}>
                                     <span className="font-bold">{s.competencyId}: {s.rating}/5</span> - <span className="italic text-slate-500">{s.comment}</span>
                                   </div>
